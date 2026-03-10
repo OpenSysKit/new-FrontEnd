@@ -41,6 +41,7 @@ jobs:
             /p:Configuration=$env:Configuration `
             /p:Platform=$env:Platform `
             /p:WindowsPackageType=None `
+            /p:EnableMsixTooling=true `
             /p:RuntimeIdentifierOverride=win-x64 `
             /p:SelfContained=true `
             /p:WindowsAppSDKSelfContained=true `
