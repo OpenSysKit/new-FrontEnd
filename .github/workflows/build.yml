@@ -11,6 +11,10 @@ jobs:
   build:
     name: Build WinUI 3
     runs-on: windows-latest
+    env:
+      Solution_Name: OpenSysKit.UI.csproj
+      Configuration: Release
+      Platform: x64
 
     steps:
       - name: Checkout
@@ -25,22 +29,21 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore
-        run: dotnet restore OpenSysKit.UI.csproj
+        run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
 
       - name: Publish unpackaged app
         id: publish
         continue-on-error: true
-        run: >
-          dotnet publish OpenSysKit.UI.csproj
-          --configuration Release
-          --runtime win-x64
-          --self-contained true
-          -p:WindowsPackageType=None
-          -p:PublishSingleFile=false
-          -p:WindowsAppSDKSelfContained=true
-          -p:RuntimeIdentifierOverride=win-x64
-          -bl:${{ github.workspace }}\artifacts\publish.binlog
-          -o "${{ github.workspace }}\artifacts\win-x64"
+        shell: pwsh
+        run: |
+          msbuild $env:Solution_Name `
+            /t:Publish `
+            /p:Configuration=$env:Configuration `
+            /p:Platform=$env:Platform `
+            /p:WindowsPackageType=None `
+            /p:RuntimeIdentifierOverride=win-x64 `
+            /p:WindowsAppSDKSelfContained=true `
+            /bl:$env:GITHUB_WORKSPACE\artifacts\publish.binlog
 
       - name: Dump build diagnostics on failure
         if: steps.publish.outcome == 'failure'
@@ -78,13 +81,21 @@ jobs:
           throw "dotnet publish failed"
 
       - name: Archive output
+        if: steps.publish.outcome == 'success'
         shell: pwsh
         run: |
           $zip = Join-Path $env:GITHUB_WORKSPACE "artifacts\OpenSysKit.UI-win-x64.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path "$env:GITHUB_WORKSPACE\artifacts\win-x64\*" -DestinationPath $zip
+          $publishDir = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin\Release" -Directory -Recurse |
+            Where-Object { $_.FullName -like '*\win-x64' } |
+            Select-Object -First 1
+          if (-not $publishDir) {
+            throw "Could not find win-x64 output under bin\\Release"
+          }
+          Compress-Archive -Path (Join-Path $publishDir.FullName '*') -DestinationPath $zip
 
       - name: Upload artifact
+        if: steps.publish.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: OpenSysKit-UI-win-x64
