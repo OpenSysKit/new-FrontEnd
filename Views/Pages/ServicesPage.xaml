@@ -5,15 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Padding="20" RowDefinitions="Auto,*" RowSpacing="16">
+    <Grid Padding="20">
         <Border Style="{StaticResource CardBorderStyle}">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Command="{Binding StartServiceCommand}" Content="启动服务" Style="{StaticResource PrimaryButtonStyle}" />
-                <Button Command="{Binding StopServiceCommand}" Content="停止服务" Style="{StaticResource DangerButtonStyle}" />
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
             <Grid RowDefinitions="Auto,*" RowSpacing="10">
                 <Grid ColumnDefinitions="220,2*,120,120" Margin="0,0,0,4">
                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务名" />
@@ -22,7 +15,19 @@
                     <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="启动类型" />
                 </Grid>
 
-                <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}">
+                <ListView
+                    x:Name="ServicesList"
+                    Grid.Row="1"
+                    ItemContainerStyle="{StaticResource DataListViewItemStyle}"
+                    ItemsSource="{Binding Services}"
+                    RightTapped="ServicesList_OnRightTapped"
+                    SelectedItem="{Binding SelectedService, Mode=TwoWay}">
+                    <ListView.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Click="StartServiceMenuItem_OnClick" Text="启动服务" />
+                            <MenuFlyoutItem Click="StopServiceMenuItem_OnClick" Text="停止服务" />
+                        </MenuFlyout>
+                    </ListView.ContextFlyout>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
