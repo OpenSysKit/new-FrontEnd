@@ -106,7 +106,12 @@ jobs:
             Select-Object -ExpandProperty FullName
           $sevenZip = Get-Command 7z -ErrorAction SilentlyContinue
           if ($sevenZip) {
-            & $sevenZip.Source a -t7z "$archiveBase.7z" @archiveItems -mx=9 -mmt=on -ms=on
+            Push-Location $publishDir
+            try {
+              & $sevenZip.Source a -t7z "$archiveBase.7z" ".\*" -xr!*.pdb -mx=9 -mmt=on -ms=on
+            } finally {
+              Pop-Location
+            }
           } else {
             Compress-Archive -Path $archiveItems -DestinationPath "$archiveBase.zip" -CompressionLevel Optimal
           }
