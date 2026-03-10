@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using OpenSysKit.UI.Models;
 using OpenSysKit.UI.Services;
 
@@ -100,6 +101,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string SelectedFileDisplay => SelectedFile == null ? "未选择项目" : SelectedFile.Name;
     public string SelectedFileKind => SelectedFile == null ? "—" : SelectedFile.KindLabel;
     public string SelectedFilePath => SelectedFile == null ? "—" : SelectedFile.Path;
+    public Visibility DetailPanelVisibility => ShowDetailPanel ? Visibility.Visible : Visibility.Collapsed;
 
     partial void OnCurrentPageChanged(NavPage value)
     {
@@ -132,6 +134,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(SelectedFileDisplay));
         OnPropertyChanged(nameof(SelectedFileKind));
         OnPropertyChanged(nameof(SelectedFilePath));
+    }
+
+    partial void OnShowDetailPanelChanged(bool value)
+    {
+        OnPropertyChanged(nameof(DetailPanelVisibility));
     }
 
     [RelayCommand]

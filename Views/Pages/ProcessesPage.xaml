@@ -104,7 +104,7 @@
                 <Border
                     Grid.Row="1"
                     Style="{StaticResource CardBorderStyle}"
-                    Visibility="{Binding ShowDetailPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Visibility="{Binding DetailPanelVisibility}">
                     <Grid RowDefinitions="Auto,*,Auto,*" RowSpacing="10">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="模块" />
                         <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding ProcessModules}">
