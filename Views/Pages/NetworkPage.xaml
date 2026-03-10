@@ -82,9 +82,6 @@
                         </Grid>
                     </Grid>
 
-                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <TextBlock Opacity="0.82" Text="这个页面保持任务管理器式紧凑密度，重点突出协议、状态和归属进程。" TextWrapping="WrapWholeWords" />
-                    </Border>
                 </Grid>
             </Border>
         </Grid>

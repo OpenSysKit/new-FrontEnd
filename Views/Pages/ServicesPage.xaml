@@ -81,9 +81,6 @@
                         </Grid>
                     </Grid>
 
-                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <TextBlock Opacity="0.82" Text="保持偏任务管理器的扁平管理界面，强调服务状态和动作，而不是展示性卡片。" TextWrapping="WrapWholeWords" />
-                    </Border>
                 </Grid>
             </Border>
         </Grid>

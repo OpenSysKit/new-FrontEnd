@@ -99,10 +99,6 @@
                         </Grid>
                     </Grid>
 
-                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <TextBlock Opacity="0.82" Text="双击文件夹会直接进入；文件保持选中，可在这里执行删除等动作。" TextWrapping="WrapWholeWords" />
-                    </Border>
-
                     <Button Grid.Row="4" Command="{Binding DeleteFileCommand}" Content="内核删除" Style="{StaticResource DangerButtonStyle}" />
                 </Grid>
             </Border>

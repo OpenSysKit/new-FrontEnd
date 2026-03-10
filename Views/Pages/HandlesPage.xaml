@@ -65,9 +65,6 @@
                 <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="统计说明" />
                     <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding HandlesSummary}" TextWrapping="WrapWholeWords" />
-                    <Border Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <TextBlock Opacity="0.82" Text="这一页保留任务管理器式的高信息密度，用来快速判断目标进程主要消耗了哪些对象类型。" TextWrapping="WrapWholeWords" />
-                    </Border>
                 </Grid>
             </Border>
         </Grid>
