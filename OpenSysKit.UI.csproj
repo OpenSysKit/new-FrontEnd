@@ -18,6 +18,5 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Styles\AppTheme.axaml" />
-    <AvaloniaResource Include="Views\MainWindow.axaml" />
   </ItemGroup>
 </Project>
