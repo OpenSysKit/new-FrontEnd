@@ -22,15 +22,22 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore OpenSysKit.UI/OpenSysKit.UI.csproj
+      - name: Find csproj
+        shell: pwsh
+        run: |
+          $proj = Get-ChildItem -Recurse -Filter "*.csproj" | Select-Object -First 1
+          echo "Found: $($proj.FullName)"
+          echo "CSPROJ=$($proj.FullName)" >> $env:GITHUB_ENV
 
-      - name: Build (Debug)
-        run: dotnet build OpenSysKit.UI/OpenSysKit.UI.csproj --configuration Debug --no-restore
+      - name: Restore
+        run: dotnet restore "${{ env.CSPROJ }}"
 
-      - name: Publish (self-contained exe)
+      - name: Build
+        run: dotnet build "${{ env.CSPROJ }}" --configuration Debug --no-restore
+
+      - name: Publish
         run: >
-          dotnet publish OpenSysKit.UI/OpenSysKit.UI.csproj
+          dotnet publish "${{ env.CSPROJ }}"
           --configuration Release
           --runtime win-x64
           --self-contained true
@@ -39,7 +46,7 @@ jobs:
           -p:ApplicationIcon=
           --output publish/win-x64
 
-      - name: Upload build artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenSysKit-UI-win-x64
