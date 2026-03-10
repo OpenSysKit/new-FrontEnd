@@ -1,0 +1,273 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ═══════════════════════════════════════════════
+       COLOR TOKENS  — cool slate + ice blue accent
+       ═══════════════════════════════════════════════ -->
+  <Styles.Resources>
+    <!-- Background layers -->
+    <Color x:Key="BgBase">#0D1117</Color>
+    <Color x:Key="BgSurface">#141B22</Color>
+    <Color x:Key="BgPanel">#1A2332</Color>
+    <Color x:Key="BgCard">#1F2B3A</Color>
+    <Color x:Key="BgHover">#243042</Color>
+    <Color x:Key="BgSelected">#1A3554</Color>
+
+    <!-- Border / separator -->
+    <Color x:Key="BorderSubtle">#2A3F55</Color>
+    <Color x:Key="BorderMid">#3A5470</Color>
+
+    <!-- Text -->
+    <Color x:Key="TextPrimary">#D8E6F3</Color>
+    <Color x:Key="TextSecondary">#7A9BB5</Color>
+    <Color x:Key="TextMuted">#4A6580</Color>
+    <Color x:Key="TextAccent">#4FACDE</Color>
+
+    <!-- Accent (ice blue) -->
+    <Color x:Key="Accent">#4FACDE</Color>
+    <Color x:Key="AccentDim">#2A6FA0</Color>
+    <Color x:Key="AccentGlow">#1A4A70</Color>
+
+    <!-- Status -->
+    <Color x:Key="StatusOk">#3DD68C</Color>
+    <Color x:Key="StatusWarn">#F5A623</Color>
+    <Color x:Key="StatusError">#E05C5C</Color>
+    <Color x:Key="StatusInfo">#4FACDE</Color>
+
+    <!-- SolidColorBrushes -->
+    <SolidColorBrush x:Key="BrBgBase" Color="{StaticResource BgBase}"/>
+    <SolidColorBrush x:Key="BrBgSurface" Color="{StaticResource BgSurface}"/>
+    <SolidColorBrush x:Key="BrBgPanel" Color="{StaticResource BgPanel}"/>
+    <SolidColorBrush x:Key="BrBgCard" Color="{StaticResource BgCard}"/>
+    <SolidColorBrush x:Key="BrBgHover" Color="{StaticResource BgHover}"/>
+    <SolidColorBrush x:Key="BrBgSelected" Color="{StaticResource BgSelected}"/>
+    <SolidColorBrush x:Key="BrBorderSubtle" Color="{StaticResource BorderSubtle}"/>
+    <SolidColorBrush x:Key="BrBorderMid" Color="{StaticResource BorderMid}"/>
+    <SolidColorBrush x:Key="BrTextPrimary" Color="{StaticResource TextPrimary}"/>
+    <SolidColorBrush x:Key="BrTextSecondary" Color="{StaticResource TextSecondary}"/>
+    <SolidColorBrush x:Key="BrTextMuted" Color="{StaticResource TextMuted}"/>
+    <SolidColorBrush x:Key="BrTextAccent" Color="{StaticResource TextAccent}"/>
+    <SolidColorBrush x:Key="BrAccent" Color="{StaticResource Accent}"/>
+    <SolidColorBrush x:Key="BrAccentDim" Color="{StaticResource AccentDim}"/>
+    <SolidColorBrush x:Key="BrStatusOk" Color="{StaticResource StatusOk}"/>
+    <SolidColorBrush x:Key="BrStatusWarn" Color="{StaticResource StatusWarn}"/>
+    <SolidColorBrush x:Key="BrStatusError" Color="{StaticResource StatusError}"/>
+    <SolidColorBrush x:Key="BrStatusInfo" Color="{StaticResource StatusInfo}"/>
+  </Styles.Resources>
+
+  <!-- ═══════════════════ Window ═══════════════════ -->
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{StaticResource BrBgBase}"/>
+    <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+  </Style>
+
+  <!-- ═══════════════════ TextBlock ═══════════════════ -->
+  <Style Selector="TextBlock">
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif"/>
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="TextBlock.secondary">
+    <Setter Property="Foreground" Value="{StaticResource BrTextSecondary}"/>
+  </Style>
+  <Style Selector="TextBlock.accent">
+    <Setter Property="Foreground" Value="{StaticResource BrTextAccent}"/>
+  </Style>
+  <Style Selector="TextBlock.heading">
+    <Setter Property="FontSize" Value="15"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+  </Style>
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
+    <Setter Property="CharacterSpacing" Value="100"/>
+  </Style>
+  <Style Selector="TextBlock.ok">
+    <Setter Property="Foreground" Value="{StaticResource BrStatusOk}"/>
+  </Style>
+  <Style Selector="TextBlock.warn">
+    <Setter Property="Foreground" Value="{StaticResource BrStatusWarn}"/>
+  </Style>
+  <Style Selector="TextBlock.error">
+    <Setter Property="Foreground" Value="{StaticResource BrStatusError}"/>
+  </Style>
+
+  <!-- ═══════════════════ Button ═══════════════════ -->
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{StaticResource BrBgCard}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Padding" Value="12,6"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Padding}">
+          <ContentPresenter Content="{TemplateBinding Content}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button:pointerover /template/ Border">
+    <Setter Property="Background" Value="{StaticResource BrBgHover}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrBorderMid}"/>
+  </Style>
+  <Style Selector="Button:pressed /template/ Border">
+    <Setter Property="Background" Value="{StaticResource BrAccentGlow}"/>
+  </Style>
+
+  <Style Selector="Button.accent">
+    <Setter Property="Background" Value="{StaticResource BrAccentDim}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrAccent}"/>
+  </Style>
+  <Style Selector="Button.accent:pointerover /template/ Border">
+    <Setter Property="Background" Value="{StaticResource BrAccent}"/>
+  </Style>
+  <Style Selector="Button.danger">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource BrStatusError}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrStatusError}"/>
+  </Style>
+  <Style Selector="Button.ghost">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextSecondary}"/>
+  </Style>
+  <Style Selector="Button.ghost:pointerover /template/ Border">
+    <Setter Property="Background" Value="{StaticResource BrBgHover}"/>
+  </Style>
+  <Style Selector="Button.icon">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+  </Style>
+
+  <!-- ═══════════════════ TextBox ═══════════════════ -->
+  <Style Selector="TextBox">
+    <Setter Property="Background" Value="{StaticResource BrBgCard}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="8,6"/>
+    <Setter Property="CaretBrush" Value="{StaticResource BrAccent}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource BrAccentDim}"/>
+  </Style>
+  <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="{StaticResource BrAccent}"/>
+  </Style>
+
+  <!-- ═══════════════════ ComboBox ═══════════════════ -->
+  <Style Selector="ComboBox">
+    <Setter Property="Background" Value="{StaticResource BrBgCard}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="8,4"/>
+  </Style>
+
+  <!-- ═══════════════════ DataGrid ═══════════════════ -->
+  <Style Selector="DataGrid">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+    <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="RowBackground" Value="Transparent"/>
+    <Setter Property="AlternatingRowBackground" Value="#0A1A2A"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="ColumnHeaderHeight" Value="34"/>
+    <Setter Property="RowHeight" Value="30"/>
+    <Setter Property="FontSize" Value="12"/>
+  </Style>
+  <Style Selector="DataGridColumnHeader">
+    <Setter Property="Background" Value="{StaticResource BrBgPanel}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="CharacterSpacing" Value="80"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="SeparatorBrush" Value="{StaticResource BrBorderSubtle}"/>
+  </Style>
+  <Style Selector="DataGridRow">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+    <Setter Property="Fill" Value="{StaticResource BrBgSelected}"/>
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+    <Setter Property="Fill" Value="{StaticResource BrBgHover}"/>
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="DataGridCell">
+    <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="DataGridCell:current /template/ Grid">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+
+  <!-- ═══════════════════ ScrollBar ═══════════════════ -->
+  <Style Selector="ScrollBar">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ScrollBar /template/ Border#VerticalRoot">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+
+  <!-- ═══════════════════ ListBox ═══════════════════ -->
+  <Style Selector="ListBox">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+  <Style Selector="ListBoxItem">
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+
+  <!-- ═══════════════════ Separator ═══════════════════ -->
+  <Style Selector="Separator">
+    <Setter Property="Background" Value="{StaticResource BrBorderSubtle}"/>
+    <Setter Property="Height" Value="1"/>
+    <Setter Property="Margin" Value="0,4"/>
+  </Style>
+
+  <!-- ═══════════════════ ProgressBar ═══════════════════ -->
+  <Style Selector="ProgressBar">
+    <Setter Property="Background" Value="{StaticResource BrBgCard}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrAccent}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Height" Value="2"/>
+    <Setter Property="CornerRadius" Value="1"/>
+  </Style>
+
+</Styles>
