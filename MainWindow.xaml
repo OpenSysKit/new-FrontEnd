@@ -3,45 +3,25 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:tb="using:H.NotifyIcon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Grid x:Name="RootGrid" Background="{StaticResource ShellBackgroundBrush}">
-        <tb:TaskbarIcon
-            x:Name="TrayIcon"
-            MenuActivation="LeftOrRightClick"
-            ToolTipText="OpenSysKit">
-            <tb:TaskbarIcon.IconSource>
-                <tb:GeneratedIconSource
-                    Background="{StaticResource ShellAccentBrush}"
-                    FontSize="28"
-                    Foreground="#09111A"
-                    Text="OS" />
-            </tb:TaskbarIcon.IconSource>
-            <tb:TaskbarIcon.ContextFlyout>
-                <MenuFlyout>
-                    <MenuFlyoutItem Click="ShowWindowMenuItem_OnClick" Text="显示主窗口" />
-                    <MenuFlyoutItem Click="ExitAppMenuItem_OnClick" Text="退出" />
-                </MenuFlyout>
-            </tb:TaskbarIcon.ContextFlyout>
-        </tb:TaskbarIcon>
-
         <NavigationView
             x:Name="ShellNav"
             AlwaysShowHeader="False"
-            CompactModeThresholdWidth="760"
-            CompactPaneLength="52"
-            ExpandedModeThresholdWidth="1180"
+            CompactModeThresholdWidth="680"
+            CompactPaneLength="48"
+            ExpandedModeThresholdWidth="1100"
             IsBackButtonVisible="Collapsed"
             IsPaneOpen="True"
             IsSettingsVisible="False"
-            OpenPaneLength="248"
+            OpenPaneLength="224"
             PaneDisplayMode="Auto"
             SelectionChanged="ShellNav_OnSelectionChanged">
             <NavigationView.PaneHeader>
                 <StackPanel Margin="16,20,16,14" Spacing="4">
                     <TextBlock FontSize="22" FontWeight="SemiBold" Text="OpenSysKit" />
-                    <TextBlock Opacity="0.72" Text="Windows system console" />
+                    <TextBlock Opacity="0.72" Text="System tools" />
                 </StackPanel>
             </NavigationView.PaneHeader>
 
@@ -71,11 +51,6 @@
                         <SymbolIcon Symbol="Library" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="句柄" Tag="Handles">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="List" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
                 <NavigationViewItem Content="启动项" Tag="Startup">
                     <NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Play" />
@@ -95,7 +70,7 @@
                 </Grid.RowDefinitions>
 
                 <Border
-                    Padding="24,20,24,16"
+                    Padding="20,18,20,14"
                     Background="{StaticResource ShellPanelBrush}"
                     BorderBrush="{StaticResource ShellBorderBrush}"
                     BorderThickness="0,0,0,1">
@@ -107,28 +82,25 @@
 
                         <Button Grid.Column="1" Click="ExportButton_OnClick" Content="导出报告" VerticalAlignment="Center" />
 
-                        <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="260,220,*" ColumnSpacing="12">
-                            <Border Style="{StaticResource MetricCardBorderStyle}">
-                                <StackPanel Spacing="4">
+                        <Border
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Style="{StaticResource MetricCardBorderStyle}">
+                            <Grid ColumnDefinitions="1.2*,0.9*,1.4*" ColumnSpacing="16">
+                                <StackPanel Spacing="2">
                                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接状态" />
-                                    <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
-                                <StackPanel Spacing="4">
+                                <StackPanel Grid.Column="1" Spacing="2">
                                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="自动刷新" />
-                                    <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding AutoRefreshDisplay}" />
+                                    <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding AutoRefreshDisplay}" />
                                 </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
-                                <StackPanel Spacing="4">
+                                <StackPanel Grid.Column="2" Spacing="2">
                                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目标" />
-                                    <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding CurrentSelectionDisplay}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding CurrentSelectionDisplay}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                            </Border>
-                        </Grid>
+                            </Grid>
+                        </Border>
                     </Grid>
                 </Border>
 

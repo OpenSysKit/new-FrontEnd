@@ -1,18 +1,14 @@
 using System;
 using System.Linq;
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using OpenSysKit.UI.ViewModels;
 using OpenSysKit.UI.Views.Pages;
-using WinRT.Interop;
 
 namespace OpenSysKit.UI;
 
 public sealed partial class MainWindow : Window
 {
-    private readonly AppWindow _appWindow;
-    private bool _isExiting;
     private bool _didAutoConnect;
 
     public MainViewModel ViewModel { get; }
@@ -24,11 +20,6 @@ public sealed partial class MainWindow : Window
 
         ViewModel = new MainViewModel(DispatcherQueue);
         RootGrid.DataContext = ViewModel;
-
-        var hwnd = WindowNative.GetWindowHandle(this);
-        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-        _appWindow = AppWindow.GetFromWindowId(windowId);
-        _appWindow.Closing += AppWindow_OnClosing;
 
         Activated += OnActivated;
         Closed += OnClosed;
@@ -84,39 +75,6 @@ public sealed partial class MainWindow : Window
         NavPage.Audit => typeof(AuditPage),
         _ => typeof(ProcessesPage)
     };
-
-    private void AppWindow_OnClosing(AppWindow sender, AppWindowClosingEventArgs args)
-    {
-        if (_isExiting)
-        {
-            return;
-        }
-
-        args.Cancel = true;
-        _appWindow.Hide();
-    }
-
-    private void ShowFromTray()
-    {
-        _appWindow.Show();
-        Activate();
-    }
-
-    private void ExitFromTray()
-    {
-        _isExiting = true;
-        Close();
-    }
-
-    private void ShowWindowMenuItem_OnClick(object sender, RoutedEventArgs e)
-    {
-        ShowFromTray();
-    }
-
-    private void ExitAppMenuItem_OnClick(object sender, RoutedEventArgs e)
-    {
-        ExitFromTray();
-    }
 
     private void OnClosed(object sender, WindowEventArgs args)
     {

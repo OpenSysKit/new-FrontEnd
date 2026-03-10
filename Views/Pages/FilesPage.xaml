@@ -5,25 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="18">
-        <Border Style="{StaticResource MetricCardBorderStyle}">
-            <Grid ColumnDefinitions="1.2*,260,*" ColumnSpacing="12">
-                <StackPanel Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目录" />
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding CurrentPath}" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="使用方式" />
-                    <TextBlock Text="双击文件夹进入，右键列表项执行文件操作。" TextWrapping="WrapWholeWords" />
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+    <Grid Padding="20" RowDefinitions="Auto,*" RowSpacing="16">
+        <Border Style="{StaticResource CardBorderStyle}">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                 <Button Command="{Binding NavigateUpCommand}" Content="返回上级" />
                 <TextBox
@@ -36,15 +19,14 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2" ColumnDefinitions="2.45*,1*" ColumnSpacing="18">
+        <Grid Grid.Row="1" ColumnDefinitions="2.6*,0.9*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
                 <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                    <Grid ColumnDefinitions="96,2.2*,120,180,*" Margin="0,0,0,2">
+                    <Grid ColumnDefinitions="96,2.6*,120,180" Margin="0,0,0,2">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类别" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="名称" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="大小" />
                         <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="修改时间" />
-                        <TextBlock Grid.Column="4" Style="{StaticResource SectionHeaderTextStyle}" Text="路径" />
                     </Grid>
 
                     <ListView
@@ -67,12 +49,11 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                                    <Grid ColumnDefinitions="96,2.2*,120,180,*">
+                                    <Grid ColumnDefinitions="96,2.6*,120,180">
                                         <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding KindLabel}" />
                                         <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
                                         <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ModTime}" />
-                                        <TextBlock Grid.Column="4" Style="{StaticResource DataValueTextStyle}" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -83,7 +64,7 @@
 
             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
                 <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="项信息" />
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="详情" />
                     <TextBlock Grid.Row="1" FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
                     <Grid Grid.Row="2" RowDefinitions="Auto,Auto" RowSpacing="10">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">

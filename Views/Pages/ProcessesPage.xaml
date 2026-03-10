@@ -5,25 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Padding="24" RowDefinitions="Auto,*" RowSpacing="18">
-        <Border Style="{StaticResource MetricCardBorderStyle}">
-            <Grid ColumnDefinitions="220,240,*" ColumnSpacing="12">
-                <StackPanel Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="进程总数" />
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Processes.Count}" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedProcessDisplay}" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="使用方式" />
-                    <TextBlock Text="右键列表项执行普通结束、冻结、解冻和内核结束。" TextWrapping="WrapWholeWords" />
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Grid Grid.Row="1" ColumnDefinitions="2.2*,1.15*" ColumnSpacing="18">
+    <Grid Padding="20" RowDefinitions="*" RowSpacing="16">
+        <Grid ColumnDefinitions="2.2*,1.15*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
                 <Grid RowDefinitions="Auto,*" RowSpacing="10">
                     <Grid ColumnDefinitions="84,2.2*,132,96,96" Margin="0,0,0,2">

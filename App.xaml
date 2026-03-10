@@ -10,10 +10,14 @@
                 <muxc:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
 
-            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#111315" />
-            <SolidColorBrush x:Key="ShellSurfaceBrush" Color="#181B1F" />
-            <SolidColorBrush x:Key="ShellPanelBrush" Color="#1E2227" />
-            <SolidColorBrush x:Key="ShellPanelAltBrush" Color="#23282E" />
+            <LinearGradientBrush x:Key="ShellBackgroundBrush" EndPoint="1,1" StartPoint="0,0">
+                <GradientStop Color="#0D1014" Offset="0" />
+                <GradientStop Color="#15202D" Offset="0.42" />
+                <GradientStop Color="#0F151C" Offset="1" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="ShellSurfaceBrush" Color="#C9161B22" />
+            <SolidColorBrush x:Key="ShellPanelBrush" Color="#CC1B2128" />
+            <SolidColorBrush x:Key="ShellPanelAltBrush" Color="#D0242B33" />
             <SolidColorBrush x:Key="ShellBorderBrush" Color="#2C3238" />
             <SolidColorBrush x:Key="ShellRowBorderBrush" Color="#23292F" />
             <SolidColorBrush x:Key="ShellAccentBrush" Color="#76B4FF" />
@@ -27,16 +31,16 @@
                 <Setter Property="Background" Value="{StaticResource ShellPanelBrush}" />
                 <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="18" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="16" />
             </Style>
 
             <Style x:Key="MetricCardBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource ShellSurfaceBrush}" />
                 <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="16,14" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="14,12" />
             </Style>
 
             <Style x:Key="SectionHeaderTextStyle" TargetType="TextBlock">
@@ -46,13 +50,13 @@
             </Style>
 
             <Style x:Key="PageTitleTextStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontSize" Value="24" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
             </Style>
 
             <Style x:Key="PageSubtitleTextStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontSize" Value="12.5" />
                 <Setter Property="Foreground" Value="{StaticResource ShellMutedBrush}" />
             </Style>
 
@@ -63,13 +67,13 @@
             </Style>
 
             <Style x:Key="DataValueTextStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontSize" Value="13" />
                 <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
             </Style>
 
             <Style TargetType="Button">
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="16,9" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="12,7" />
                 <Setter Property="HorizontalAlignment" Value="Left" />
                 <Setter Property="Background" Value="{StaticResource ShellPanelAltBrush}" />
                 <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
@@ -78,16 +82,16 @@
             </Style>
 
             <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="16,9" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="12,7" />
                 <Setter Property="Foreground" Value="#09111A" />
                 <Setter Property="Background" Value="{StaticResource ShellAccentBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
 
             <Style x:Key="DangerButtonStyle" TargetType="Button">
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="16,9" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="12,7" />
                 <Setter Property="Foreground" Value="White" />
                 <Setter Property="Background" Value="{StaticResource ShellDangerBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
@@ -102,7 +106,7 @@
             <Style x:Key="DataListViewItemStyle" TargetType="ListViewItem">
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="MinHeight" Value="42" />
+                <Setter Property="MinHeight" Value="38" />
                 <Setter Property="Padding" Value="0" />
             </Style>
 
@@ -110,7 +114,7 @@
                 <Setter Property="Background" Value="{StaticResource ShellSurfaceBrush}" />
                 <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="CornerRadius" Value="6" />
                 <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
             </Style>
         </ResourceDictionary>
