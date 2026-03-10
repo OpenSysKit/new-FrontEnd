@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="using:OpenSysKit.UI.ViewModels"
     mc:Ignorable="d">
-    <Grid Background="{StaticResource ShellBackgroundBrush}">
+    <Grid x:Name="RootGrid" Background="{StaticResource ShellBackgroundBrush}">
         <NavigationView
             x:Name="ShellNav"
             AlwaysShowHeader="True"
@@ -21,7 +21,7 @@
                     <Border Style="{StaticResource CardBorderStyle}">
                         <StackPanel Spacing="8">
                             <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接状态" />
-                            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
                             <Button Click="ConnectButton_OnClick" Content="连接到后端" />
                         </StackPanel>
                     </Border>
@@ -31,15 +31,15 @@
             <NavigationView.Header>
                 <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" VerticalAlignment="Center">
                     <StackPanel>
-                        <TextBlock FontSize="28" FontWeight="SemiBold" Text="{x:Bind ViewModel.CurrentPageTitle, Mode=OneWay}" />
-                        <TextBlock Opacity="0.72" Text="{x:Bind ViewModel.CurrentPageSubtitle, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                        <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding CurrentPageTitle}" />
+                        <TextBlock Opacity="0.72" Text="{Binding CurrentPageSubtitle}" TextWrapping="WrapWholeWords" />
                     </StackPanel>
                     <Button Grid.Column="1" Click="RefreshButton_OnClick" Content="刷新" VerticalAlignment="Center" />
                     <ProgressRing
                         Grid.Column="2"
                         Width="20"
                         Height="20"
-                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                        IsActive="{Binding IsLoading}"
                         VerticalAlignment="Center" />
                 </Grid>
             </NavigationView.Header>
@@ -61,7 +61,7 @@
                     <Border Style="{StaticResource CardBorderStyle}">
                         <StackPanel Spacing="6">
                             <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="健康状态" />
-                            <TextBlock Text="{x:Bind ViewModel.OverallHealth, Mode=OneWay}" />
+                            <TextBlock Text="{Binding OverallHealth}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>

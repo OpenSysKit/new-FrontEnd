@@ -15,6 +15,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         ViewModel = new MainViewModel(DispatcherQueue);
+        RootGrid.DataContext = ViewModel;
         Closed += OnClosed;
 
         if (ShellNav.MenuItems.OfType<NavigationViewItem>().FirstOrDefault() is { } firstItem)

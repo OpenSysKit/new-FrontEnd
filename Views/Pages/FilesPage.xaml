@@ -41,11 +41,11 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:FileEntry">
                                 <Grid ColumnDefinitions="100,2*,120,180,*" Padding="0,6">
-                                    <TextBlock Text="{x:Bind KindLabel}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SizeDisplay}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind ModTime}" />
-                                    <TextBlock Grid.Column="4" Text="{x:Bind Path}" />
+                                    <TextBlock Text="{Binding KindLabel}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding ModTime}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Path}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

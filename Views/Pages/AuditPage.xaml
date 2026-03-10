@@ -25,10 +25,10 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:AuditEntry">
                                 <Grid ColumnDefinitions="80,220,2*,100" Padding="0,6">
-                                    <TextBlock Text="{x:Bind Id}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Timestamp}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind Action}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind Success}" />
+                                    <TextBlock Text="{Binding Id}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Timestamp}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Action}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Success}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

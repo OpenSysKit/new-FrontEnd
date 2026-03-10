@@ -28,9 +28,9 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:HandleTypeInfo">
                                 <Grid ColumnDefinitions="120,2*,140" Padding="0,6">
-                                    <TextBlock Text="{x:Bind TypeIndex}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind TypeName}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind Count}" />
+                                    <TextBlock Text="{Binding TypeIndex}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding TypeName}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Count}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

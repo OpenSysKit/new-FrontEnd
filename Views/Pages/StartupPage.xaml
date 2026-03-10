@@ -27,12 +27,12 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:StartupEntry">
                                 <Grid ColumnDefinitions="100,180,2*,120,120,*" Padding="0,6">
-                                    <TextBlock Text="{x:Bind Source}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind DisplayName}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind State}" />
-                                    <TextBlock Grid.Column="4" Text="{x:Bind RunAs}" />
-                                    <TextBlock Grid.Column="5" Text="{x:Bind Command}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Source}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding DisplayName}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding State}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding RunAs}" />
+                                    <TextBlock Grid.Column="5" Text="{Binding Command}" TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

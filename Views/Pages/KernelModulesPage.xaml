@@ -25,10 +25,10 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:KernelModule">
                                 <Grid ColumnDefinitions="220,180,120,*" Padding="0,6">
-                                    <TextBlock Text="{x:Bind ModuleName}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind BaseAddressHex}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SizeDisplay}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind Path}" />
+                                    <TextBlock Text="{Binding ModuleName}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding BaseAddressHex}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Path}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

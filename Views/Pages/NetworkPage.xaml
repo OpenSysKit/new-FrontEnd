@@ -31,12 +31,12 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:NetworkConnection">
                                 <Grid ColumnDefinitions="80,200,220,100,100,*" Padding="0,6">
-                                    <TextBlock Text="{x:Bind Protocol}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind LocalEndpoint}" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind RemoteEndpoint}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind State}" />
-                                    <TextBlock Grid.Column="4" Text="{x:Bind ProcessId}" />
-                                    <TextBlock Grid.Column="5" Text="{x:Bind ProcessName}" />
+                                    <TextBlock Text="{Binding Protocol}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding LocalEndpoint}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding RemoteEndpoint}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding State}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding ProcessId}" />
+                                    <TextBlock Grid.Column="5" Text="{Binding ProcessName}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
