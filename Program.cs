@@ -1,13 +1,1 @@
-using Avalonia;
-
-namespace OpenSysKit.UI;
-
-// Main 入口在 App.axaml.cs 的 Program 类里
-public static class AppBuilderHelper
-{
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .WithInterFont()
-            .LogToTrace();
-}
+// 入口 Main 和 BuildAvaloniaApp 在 App.axaml.cs 的 Program 类里

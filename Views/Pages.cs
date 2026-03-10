@@ -31,10 +31,11 @@ public class NetworkPage : UserControl
         var tbPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var heading = new TextBlock { Text = "网络连接", Classes = { "heading" }, VerticalAlignment = VerticalAlignment.Center };
 
-        var protoBox = new ComboBox { Width = 100 };
-        protoBox.Items.Add("all");
-        protoBox.Items.Add("tcp");
-        protoBox.Items.Add("udp");
+        var protoBox = new ComboBox
+        {
+            Width = 100,
+            ItemsSource = new[] { "all", "tcp", "udp" }
+        };
         protoBox.Bind(ComboBox.SelectedItemProperty, new Binding("NetProtocol") { Mode = BindingMode.TwoWay });
 
         var countLbl = new TextBlock { VerticalAlignment = VerticalAlignment.Center, FontSize = 11 };

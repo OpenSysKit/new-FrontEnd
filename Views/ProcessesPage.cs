@@ -120,13 +120,6 @@ public class ProcessesPage : UserControl
             Width = new DataGridLength(80)
         });
 
-        var sv = new ScrollViewer
-        {
-            Content = dg,
-            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
-            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
-        };
-
         return dg;
     }
 

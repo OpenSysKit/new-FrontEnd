@@ -49,6 +49,7 @@
     <SolidColorBrush x:Key="BrTextAccent" Color="{StaticResource TextAccent}"/>
     <SolidColorBrush x:Key="BrAccent" Color="{StaticResource Accent}"/>
     <SolidColorBrush x:Key="BrAccentDim" Color="{StaticResource AccentDim}"/>
+    <SolidColorBrush x:Key="BrAccentGlow" Color="{StaticResource AccentGlow}"/>
     <SolidColorBrush x:Key="BrStatusOk" Color="{StaticResource StatusOk}"/>
     <SolidColorBrush x:Key="BrStatusWarn" Color="{StaticResource StatusWarn}"/>
     <SolidColorBrush x:Key="BrStatusError" Color="{StaticResource StatusError}"/>
