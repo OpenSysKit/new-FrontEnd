@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using OpenSysKit.UI.Models;
 using OpenSysKit.UI.ViewModels;
@@ -28,7 +29,7 @@ public sealed partial class ProcessesPage : Page
 
     private void ProcessesList_OnRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        if (ItemsControl.ContainerFromElement(ProcessesList, (DependencyObject)e.OriginalSource) is ListViewItem item &&
+        if (FindAncestor<ListViewItem>(e.OriginalSource as DependencyObject) is { } item &&
             item.DataContext is ProcessInfo process)
         {
             ProcessesList.SelectedItem = process;
@@ -63,5 +64,20 @@ public sealed partial class ProcessesPage : Page
     private async void ViewThreadsMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         await ViewModel.ViewThreadsCommand.ExecuteAsync(null);
+    }
+
+    private static T? FindAncestor<T>(DependencyObject? current) where T : DependencyObject
+    {
+        while (current != null)
+        {
+            if (current is T match)
+            {
+                return match;
+            }
+
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return null;
     }
 }

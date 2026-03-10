@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using OpenSysKit.UI.Models;
 using OpenSysKit.UI.ViewModels;
@@ -39,7 +40,7 @@ public sealed partial class FilesPage : Page
 
     private void EntriesList_OnRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        if (ItemsControl.ContainerFromElement(EntriesList, (DependencyObject)e.OriginalSource) is ListViewItem item &&
+        if (FindAncestor<ListViewItem>(e.OriginalSource as DependencyObject) is { } item &&
             item.DataContext is FileEntry entry)
         {
             EntriesList.SelectedItem = entry;
@@ -104,5 +105,20 @@ public sealed partial class FilesPage : Page
         {
             ViewModel.StatusMessage = $"打开失败: {ex.Message}";
         }
+    }
+
+    private static T? FindAncestor<T>(DependencyObject? current) where T : DependencyObject
+    {
+        while (current != null)
+        {
+            if (current is T match)
+            {
+                return match;
+            }
+
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return null;
     }
 }
