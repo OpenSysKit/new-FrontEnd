@@ -42,6 +42,7 @@ jobs:
             /p:Platform=$env:Platform `
             /p:WindowsPackageType=None `
             /p:RuntimeIdentifierOverride=win-x64 `
+            /p:SelfContained=true `
             /p:WindowsAppSDKSelfContained=true `
             /bl:$env:GITHUB_WORKSPACE\artifacts\publish.binlog
 
