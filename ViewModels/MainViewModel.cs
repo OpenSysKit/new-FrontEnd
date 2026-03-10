@@ -21,6 +21,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly RpcClient _rpc = new();
     private readonly DispatcherQueue _dispatcherQueue;
     private CancellationTokenSource? _refreshCts;
+    private bool _isConnecting;
 
     public MainViewModel(DispatcherQueue dispatcherQueue)
     {
@@ -102,16 +103,32 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string SelectedFileKind => SelectedFile == null ? "—" : SelectedFile.KindLabel;
     public string SelectedFilePath => SelectedFile == null ? "—" : SelectedFile.Path;
     public Visibility DetailPanelVisibility => ShowDetailPanel ? Visibility.Visible : Visibility.Collapsed;
+    public string AutoRefreshDisplay => IsConnected ? "自动刷新已开启" : "等待后端";
+    public string CurrentSelectionDisplay => CurrentPage switch
+    {
+        NavPage.Processes or NavPage.Handles => SelectedProcessDisplay,
+        NavPage.Network => SelectedConnectionDisplay,
+        NavPage.Services => SelectedServiceDisplay,
+        NavPage.Files => SelectedFileDisplay,
+        _ => StatusMessage
+    };
 
     partial void OnCurrentPageChanged(NavPage value)
     {
         OnPropertyChanged(nameof(CurrentPageTitle));
         OnPropertyChanged(nameof(CurrentPageSubtitle));
+        OnPropertyChanged(nameof(CurrentSelectionDisplay));
+    }
+
+    partial void OnIsConnectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(AutoRefreshDisplay));
     }
 
     partial void OnSelectedProcessChanged(ProcessInfo? value)
     {
         OnPropertyChanged(nameof(SelectedProcessDisplay));
+        OnPropertyChanged(nameof(CurrentSelectionDisplay));
 
         if (CurrentPage == NavPage.Handles && IsConnected)
         {
@@ -122,11 +139,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     partial void OnSelectedConnectionChanged(NetworkConnection? value)
     {
         OnPropertyChanged(nameof(SelectedConnectionDisplay));
+        OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
     partial void OnSelectedServiceChanged(ServiceInfo? value)
     {
         OnPropertyChanged(nameof(SelectedServiceDisplay));
+        OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
     partial void OnSelectedFileChanged(FileEntry? value)
@@ -134,6 +153,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(SelectedFileDisplay));
         OnPropertyChanged(nameof(SelectedFileKind));
         OnPropertyChanged(nameof(SelectedFilePath));
+        OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
     partial void OnShowDetailPanelChanged(bool value)
@@ -141,11 +161,27 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(DetailPanelVisibility));
     }
 
+    public async Task EnsureConnectedAsync()
+    {
+        if (IsConnected || _isConnecting)
+        {
+            return;
+        }
+
+        await ConnectCommand.ExecuteAsync(null);
+    }
+
     [RelayCommand]
     private async Task ConnectAsync()
     {
+        if (IsConnected || _isConnecting)
+        {
+            return;
+        }
+
         try
         {
+            _isConnecting = true;
             IsLoading = true;
             StatusMessage = "正在连接...";
             await _rpc.ConnectAsync();
@@ -162,6 +198,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         finally
         {
+            _isConnecting = false;
             IsLoading = false;
         }
     }
@@ -264,6 +301,30 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private async Task TaskKillProcessAsync()
+    {
+        if (SelectedProcess == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.TaskKillProcess", new
+            {
+                process_id = SelectedProcess.ProcessId,
+                tree = false
+            });
+            StatusMessage = $"普通结束: {SelectedProcess.ImageName} {result?["output"]?.GetValue<string>()}".Trim();
+            await LoadProcessesAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"普通结束失败: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private async Task ProtectProcessAsync()
     {
         if (SelectedProcess == null)
@@ -298,6 +359,25 @@ public partial class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             StatusMessage = $"冻结失败: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task UnfreezeProcessAsync()
+    {
+        if (SelectedProcess == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _rpc.CallAsync("Toolkit.UnfreezeProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已解冻进程 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"解冻失败: {ex.Message}";
         }
     }
 
@@ -402,6 +482,27 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private async Task KillLockingProcessesAsync()
+    {
+        if (SelectedFile == null || SelectedFile.IsDir)
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.KillFileLockingProcesses", new { path = SelectedFile.Path });
+            var results = result?["results"]?.AsArray();
+            var successCount = results?.Count(node => node?["success"]?.GetValue<bool>() == true) ?? 0;
+            StatusMessage = $"已处理占用进程 {successCount} 个";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"处理占用失败: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private async Task ExportReportAsync()
     {
         try
@@ -494,7 +595,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         var processes = result["processes"]?.Deserialize<List<ProcessInfo>>(JsonOptions) ?? [];
         ReplaceCollection(Processes, processes);
         SelectedProcess = selectedPid == null
-            ? SelectedProcess
+            ? Processes.FirstOrDefault()
             : Processes.FirstOrDefault(item => item.ProcessId == selectedPid);
 
         OnPropertyChanged(nameof(ProcessesSummary));
@@ -531,6 +632,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private async Task LoadFilesAsync()
     {
+        var selectedPath = SelectedFile?.Path;
         var result = await _rpc.CallAsync("Toolkit.ListDirectory", new { path = CurrentPath });
         if (result == null)
         {
@@ -541,6 +643,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ParentPath = result["parent_path"]?.GetValue<string>() ?? "";
         var files = result["entries"]?.Deserialize<List<FileEntry>>(JsonOptions) ?? [];
         ReplaceCollection(FileEntries, files);
+        SelectedFile = selectedPath == null
+            ? FileEntries.FirstOrDefault()
+            : FileEntries.FirstOrDefault(item => string.Equals(item.Path, selectedPath, StringComparison.OrdinalIgnoreCase))
+                ?? FileEntries.FirstOrDefault();
         OnPropertyChanged(nameof(FilesSummary));
         StatusMessage = $"目录: {files.Count} 项";
     }

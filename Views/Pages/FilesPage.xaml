@@ -5,32 +5,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Padding="20" RowDefinitions="Auto,Auto,*" RowSpacing="16">
-        <Grid ColumnDefinitions="1.4*,*,*" ColumnSpacing="12">
-            <Border Style="{StaticResource MetricCardBorderStyle}">
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="18">
+        <Border Style="{StaticResource MetricCardBorderStyle}">
+            <Grid ColumnDefinitions="1.2*,260,*" ColumnSpacing="12">
                 <StackPanel Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前位置" />
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目录" />
                     <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding CurrentPath}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding FilesSummary}" />
                 </StackPanel>
-            </Border>
-
-            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
-                <StackPanel Spacing="4">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="上级目录" />
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding ParentPath}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="Explorer 式回退" />
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
-                <StackPanel Spacing="4">
+                <StackPanel Grid.Column="1" Spacing="4">
                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
                     <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding SelectedFileKind}" />
                 </StackPanel>
-            </Border>
-        </Grid>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="使用方式" />
+                    <TextBlock Text="双击文件夹进入，右键列表项执行文件操作。" TextWrapping="WrapWholeWords" />
+                </StackPanel>
+            </Grid>
+        </Border>
 
         <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -45,10 +36,10 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2" ColumnDefinitions="2.4*,1*" ColumnSpacing="16">
+        <Grid Grid.Row="2" ColumnDefinitions="2.45*,1*" ColumnSpacing="18">
             <Border Style="{StaticResource CardBorderStyle}">
                 <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                    <Grid ColumnDefinitions="100,2*,120,180,*" Margin="0,0,0,4">
+                    <Grid ColumnDefinitions="96,2.2*,120,180,*" Margin="0,0,0,2">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类别" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="名称" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="大小" />
@@ -62,11 +53,21 @@
                         DoubleTapped="EntriesList_OnDoubleTapped"
                         ItemContainerStyle="{StaticResource DataListViewItemStyle}"
                         ItemsSource="{Binding FileEntries}"
+                        RightTapped="EntriesList_OnRightTapped"
                         SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
+                        <ListView.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Click="OpenMenuItem_OnClick" Text="打开" />
+                                <MenuFlyoutItem Click="CopyPathMenuItem_OnClick" Text="复制路径" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Click="KillLockingMenuItem_OnClick" Text="结束占用进程" />
+                                <MenuFlyoutItem Click="DeleteMenuItem_OnClick" Text="内核删除" />
+                            </MenuFlyout>
+                        </ListView.ContextFlyout>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
-                                    <Grid ColumnDefinitions="100,2*,120,180,*">
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                    <Grid ColumnDefinitions="96,2.2*,120,180,*">
                                         <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding KindLabel}" />
                                         <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
@@ -81,10 +82,10 @@
             </Border>
 
             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="10">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
                     <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="项信息" />
-                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
-                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                    <TextBlock Grid.Row="1" FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
+                    <Grid Grid.Row="2" RowDefinitions="Auto,Auto" RowSpacing="10">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                             <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedFileKind}" />
@@ -93,13 +94,11 @@
                             <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="路径" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedFilePath}" TextWrapping="WrapWholeWords" />
                         </Grid>
-                        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
-                            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
-                        </Grid>
                     </Grid>
-
-                    <Button Grid.Row="4" Command="{Binding DeleteFileCommand}" Content="内核删除" Style="{StaticResource DangerButtonStyle}" />
+                    <StackPanel Grid.Row="3" Spacing="4">
+                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                        <TextBlock Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>

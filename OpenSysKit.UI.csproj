@@ -6,6 +6,7 @@
     <RootNamespace>OpenSysKit.UI</RootNamespace>
     <AssemblyName>OpenSysKit.UI</AssemblyName>
     <UseWinUI>true</UseWinUI>
+    <UseWindowsForms>true</UseWindowsForms>
     <WindowsPackageType>None</WindowsPackageType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
