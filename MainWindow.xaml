@@ -40,8 +40,7 @@
                         Width="20"
                         Height="20"
                         IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                        VerticalAlignment="Center"
-                        Visibility="{x:Bind ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                        VerticalAlignment="Center" />
                 </Grid>
             </NavigationView.Header>
 
