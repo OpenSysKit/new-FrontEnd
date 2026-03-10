@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:OpenSysKit.UI.Models"
     mc:Ignorable="d">
     <ScrollViewer>
         <StackPanel Padding="20" Spacing="16">
@@ -38,7 +37,7 @@
                         ItemsSource="{Binding FileEntries}"
                         SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:FileEntry">
+                            <DataTemplate>
                                 <Grid ColumnDefinitions="100,2*,120,180,*" Padding="0,6">
                                     <TextBlock Text="{Binding KindLabel}" />
                                     <TextBlock Grid.Column="1" Text="{Binding Name}" />

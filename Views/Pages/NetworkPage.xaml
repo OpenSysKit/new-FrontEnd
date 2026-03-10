@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:OpenSysKit.UI.Models"
     mc:Ignorable="d">
     <ScrollViewer>
         <StackPanel Padding="20" Spacing="16">
@@ -28,7 +27,7 @@
                     </Grid>
                     <ListView ItemsSource="{Binding Connections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:NetworkConnection">
+                            <DataTemplate>
                                 <Grid ColumnDefinitions="80,200,220,100,100,*" Padding="0,6">
                                     <TextBlock Text="{Binding Protocol}" />
                                     <TextBlock Grid.Column="1" Text="{Binding LocalEndpoint}" />

@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:OpenSysKit.UI.Models"
     mc:Ignorable="d">
     <ScrollViewer>
         <StackPanel Padding="20" Spacing="16">
@@ -22,7 +21,7 @@
                     </Grid>
                     <ListView ItemsSource="{Binding KernelModules}">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:KernelModule">
+                            <DataTemplate>
                                 <Grid ColumnDefinitions="220,180,120,*" Padding="0,6">
                                     <TextBlock Text="{Binding ModuleName}" />
                                     <TextBlock Grid.Column="1" Text="{Binding BaseAddressHex}" />
