@@ -201,7 +201,6 @@
     <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
     <Setter Property="FontSize" Value="10"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
-    <Setter Property="LetterSpacing" Value="1.0"/>
     <Setter Property="Padding" Value="10,0"/>
     <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
