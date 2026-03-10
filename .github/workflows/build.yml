@@ -44,6 +44,8 @@ jobs:
             /p:RuntimeIdentifierOverride=win-x64 `
             /p:SelfContained=true `
             /p:WindowsAppSDKSelfContained=true `
+            /p:DebugSymbols=false `
+            /p:DebugType=None `
             /bl:$env:GITHUB_WORKSPACE\artifacts\publish.binlog
 
       - name: Dump build diagnostics on failure
@@ -93,7 +95,10 @@ jobs:
             throw "Could not find OpenSysKit.UI.exe under bin"
           }
           $publishDir = Split-Path $exe.FullName -Parent
-          Compress-Archive -Path (Join-Path $publishDir '*') -DestinationPath $zip
+          $archiveItems = Get-ChildItem -Path $publishDir -Force |
+            Where-Object { $_.Extension -ne '.pdb' } |
+            Select-Object -ExpandProperty FullName
+          Compress-Archive -Path $archiveItems -DestinationPath $zip -CompressionLevel Optimal
 
       - name: Upload artifact
         if: steps.publish.outcome == 'success'

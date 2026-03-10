@@ -58,11 +58,6 @@ public sealed partial class MainWindow : Window
         ContentFrame.Navigate(ResolvePage(page), ViewModel);
     }
 
-    private async void ExportButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        await ViewModel.ExportReportCommand.ExecuteAsync(null);
-    }
-
     private static Type ResolvePage(NavPage page) => page switch
     {
         NavPage.Processes => typeof(ProcessesPage),
