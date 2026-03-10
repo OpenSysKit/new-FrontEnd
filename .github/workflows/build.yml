@@ -28,6 +28,8 @@ jobs:
         run: dotnet restore OpenSysKit.UI.csproj
 
       - name: Publish unpackaged app
+        id: publish
+        continue-on-error: true
         run: >
           dotnet publish OpenSysKit.UI.csproj
           --configuration Release
@@ -36,6 +38,24 @@ jobs:
           -p:WindowsPackageType=None
           -p:PublishSingleFile=false
           -o "${{ github.workspace }}\artifacts\win-x64"
+
+      - name: Dump build diagnostics on failure
+        if: steps.publish.outcome == 'failure'
+        shell: pwsh
+        run: |
+          Write-Host "Publish failed. Dumping likely XAML compiler artifacts..."
+          Get-ChildItem -Recurse obj\Release -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize
+          Get-ChildItem -Recurse obj\Release -Include *.json,*.log,*.err,*.txt -ErrorAction SilentlyContinue |
+            ForEach-Object {
+              Write-Host "==== $($_.FullName) ===="
+              Get-Content $_.FullName -ErrorAction SilentlyContinue
+            }
+
+      - name: Fail when publish did not succeed
+        if: steps.publish.outcome == 'failure'
+        shell: pwsh
+        run: |
+          throw "dotnet publish failed"
 
       - name: Archive output
         shell: pwsh

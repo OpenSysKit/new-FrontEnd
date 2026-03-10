@@ -45,46 +45,14 @@
             </NavigationView.Header>
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="进程" Tag="Processes">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="AllApps" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="网络" Tag="Network">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Globe" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="服务" Tag="Services">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Setting" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="文件" Tag="Files">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Folder" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="内核模块" Tag="KernelModules">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Page" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="句柄" Tag="Handles">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Link" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="启动项" Tag="Startup">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Play" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="审计日志" Tag="Audit">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Document" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
+                <NavigationViewItem Content="进程" Tag="Processes" />
+                <NavigationViewItem Content="网络" Tag="Network" />
+                <NavigationViewItem Content="服务" Tag="Services" />
+                <NavigationViewItem Content="文件" Tag="Files" />
+                <NavigationViewItem Content="内核模块" Tag="KernelModules" />
+                <NavigationViewItem Content="句柄" Tag="Handles" />
+                <NavigationViewItem Content="启动项" Tag="Startup" />
+                <NavigationViewItem Content="审计日志" Tag="Audit" />
             </NavigationView.MenuItems>
 
             <NavigationView.PaneFooter>

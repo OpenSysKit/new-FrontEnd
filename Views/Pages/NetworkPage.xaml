@@ -11,12 +11,8 @@
         <StackPanel Padding="20" Spacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBlock VerticalAlignment="Center" Text="协议过滤" />
-                    <ComboBox SelectedItem="{Binding NetProtocol, Mode=TwoWay}" Width="120">
-                        <x:String>all</x:String>
-                        <x:String>tcp</x:String>
-                        <x:String>udp</x:String>
-                    </ComboBox>
+                    <TextBlock VerticalAlignment="Center" Text="当前过滤" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding NetProtocol}" />
                     <TextBlock VerticalAlignment="Center" Text="{Binding ConnectionsSummary}" />
                 </StackPanel>
             </Border>
