@@ -125,7 +125,7 @@ jobs:
           if ($sevenZip) {
             Push-Location $publishDir
             try {
-              & $sevenZip.Source a -t7z "$archiveBase.7z" ".\*" -xr!*.pdb -mx=9 -mmt=on -ms=on
+              & $sevenZip.Source a -t7z "$archiveBase.7z" "*" "-xr!*.pdb" -mx=9 -mmt=on -ms=on
             } finally {
               Pop-Location
             }
