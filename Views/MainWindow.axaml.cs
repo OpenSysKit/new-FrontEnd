@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
@@ -157,7 +158,7 @@ public partial class MainWindow : Window
 
         var navLbl = T("NAVIGATION", 9.5, FontWeight.SemiBold, BrTextMuted);
         navLbl.Margin = new Thickness(16, 10, 0, 4);
-        navLbl.CharacterSpacing = 100;
+        navLbl.LetterSpacing = 1.5;
         DockPanel.SetDock(navLbl, Dock.Top);
         dock.Children.Add(navLbl);
 
@@ -198,7 +199,7 @@ public partial class MainWindow : Window
         hdr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         hdr.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var cap = T("后端连接", 9.5, FontWeight.SemiBold, BrTextMuted);
-        cap.CharacterSpacing = 80;
+        cap.LetterSpacing = 1.0;
         var dot = new Ellipse { Width = 7, Height = 7, VerticalAlignment = VerticalAlignment.Center, Fill = BrTextMuted };
         Grid.SetColumn(cap, 0); Grid.SetColumn(dot, 1);
         hdr.Children.Add(cap); hdr.Children.Add(dot);
