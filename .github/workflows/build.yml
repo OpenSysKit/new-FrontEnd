@@ -49,7 +49,7 @@ jobs:
             /p:EnableCompressionInSingleFile=true `
             /p:DebugSymbols=false `
             /p:DebugType=None `
-            /bl:$env:GITHUB_WORKSPACE\artifacts\publish.binlog
+            /bl:$env:RUNNER_TEMP\publish.binlog
 
       - name: Dump build diagnostics on failure
         if: steps.publish.outcome == 'failure'
@@ -76,7 +76,7 @@ jobs:
         with:
           name: OpenSysKit-UI-build-diagnostics
           path: |
-            artifacts/publish.binlog
+            ${{ runner.temp }}/publish.binlog
             obj/Release
           if-no-files-found: warn
 
