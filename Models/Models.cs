@@ -105,7 +105,7 @@ public class FileEntry
     [JsonPropertyName("size")] public long Size { get; set; }
     [JsonPropertyName("mod_time")] public string ModTime { get; set; } = "";
     public string SizeDisplay => IsDir ? "—" : (Size > 1024 * 1024 ? $"{Size / 1024.0 / 1024.0:F1} MB" : $"{Size / 1024.0:F1} KB");
-    public string TypeIcon => IsDir ? "📁" : "📄";
+    public string KindLabel => IsDir ? "文件夹" : "文件";
 }
 
 public class KernelModule

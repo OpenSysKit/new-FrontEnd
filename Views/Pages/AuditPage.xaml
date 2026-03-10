@@ -1,0 +1,40 @@
+<views:ViewModelPage
+    x:Class="OpenSysKit.UI.Views.Pages.AuditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:OpenSysKit.UI.Models"
+    xmlns:views="using:OpenSysKit.UI.Views.Pages"
+    mc:Ignorable="d">
+    <ScrollViewer>
+        <StackPanel Padding="20" Spacing="16">
+            <Border Style="{StaticResource CardBorderStyle}">
+                <TextBlock Text="{Binding AuditSummary}" />
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <Grid ColumnDefinitions="80,220,2*,100" Margin="0,0,0,8">
+                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="ID" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="时间" />
+                        <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="操作" />
+                        <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="成功" />
+                    </Grid>
+                    <ListView ItemsSource="{Binding AuditEntries}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:AuditEntry">
+                                <Grid ColumnDefinitions="80,220,2*,100" Padding="0,6">
+                                    <TextBlock Text="{x:Bind Id}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Timestamp}" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Action}" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind Success}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</views:ViewModelPage>

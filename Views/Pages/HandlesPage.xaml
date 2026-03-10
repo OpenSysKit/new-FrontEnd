@@ -1,0 +1,44 @@
+<views:ViewModelPage
+    x:Class="OpenSysKit.UI.Views.Pages.HandlesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:OpenSysKit.UI.Models"
+    xmlns:views="using:OpenSysKit.UI.Views.Pages"
+    mc:Ignorable="d">
+    <ScrollViewer>
+        <StackPanel Padding="20" Spacing="16">
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目标进程" />
+                    <TextBlock Text="{Binding SelectedProcessDisplay}" />
+                    <TextBlock Opacity="0.72" Text="切换到本页会自动选择当前进程并加载句柄统计。" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <Grid ColumnDefinitions="120,2*,140" Margin="0,0,0,8">
+                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型索引" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="类型名称" />
+                        <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="句柄数量" />
+                    </Grid>
+                    <ListView ItemsSource="{Binding HandleTypes}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:HandleTypeInfo">
+                                <Grid ColumnDefinitions="120,2*,140" Padding="0,6">
+                                    <TextBlock Text="{x:Bind TypeIndex}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind TypeName}" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Count}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Button Command="{Binding LoadHandlesCommand}" Content="刷新句柄" />
+        </StackPanel>
+    </ScrollViewer>
+</views:ViewModelPage>

@@ -1,17 +1,19 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  release:
-    types: [ created ]
 
 jobs:
   build:
-    name: Build & Package
+    name: Build WinUI 3
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: FrontEnd
 
     steps:
       - name: Checkout
@@ -22,51 +24,32 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Find csproj
-        shell: pwsh
-        run: |
-          $proj = Get-ChildItem -Recurse -Filter "*.csproj" | Select-Object -First 1
-          echo "Found: $($proj.FullName)"
-          echo "CSPROJ=$($proj.FullName)" >> $env:GITHUB_ENV
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
       - name: Restore
-        run: dotnet restore "${{ env.CSPROJ }}"
+        run: dotnet restore OpenSysKit.UI.csproj
 
-      - name: Build
-        run: dotnet build "${{ env.CSPROJ }}" --configuration Debug --no-restore
-
-      - name: Publish
+      - name: Publish unpackaged app
         run: >
-          dotnet publish "${{ env.CSPROJ }}"
+          dotnet publish OpenSysKit.UI.csproj
           --configuration Release
           --runtime win-x64
           --self-contained true
-          -p:PublishSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:ApplicationIcon=
-          --output publish/win-x64
+          -p:WindowsPackageType=None
+          -p:PublishSingleFile=false
+          -o "${{ github.workspace }}\artifacts\win-x64"
+
+      - name: Archive output
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:GITHUB_WORKSPACE "artifacts\OpenSysKit.UI-win-x64.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "$env:GITHUB_WORKSPACE\artifacts\win-x64\*" -DestinationPath $zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenSysKit-UI-win-x64
-          path: publish/win-x64/OpenSysKit.UI.exe
+          path: artifacts/OpenSysKit.UI-win-x64.zip
           if-no-files-found: error
-
-  release:
-    name: Attach to Release
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: OpenSysKit-UI-win-x64
-          path: dist/
-
-      - name: Upload release asset
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/OpenSysKit.UI.exe

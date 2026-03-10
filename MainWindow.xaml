@@ -1,0 +1,106 @@
+<Window
+    x:Class="OpenSysKit.UI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="using:OpenSysKit.UI.ViewModels"
+    mc:Ignorable="d">
+    <Grid Background="{StaticResource ShellBackgroundBrush}">
+        <NavigationView
+            x:Name="ShellNav"
+            AlwaysShowHeader="True"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            PaneDisplayMode="Left"
+            SelectionChanged="ShellNav_OnSelectionChanged">
+            <NavigationView.PaneHeader>
+                <StackPanel Margin="12,16,12,12" Spacing="10">
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Text="OpenSysKit" />
+                    <TextBlock Opacity="0.72" Text="WinUI 3 shell for system operations." />
+                    <Border Style="{StaticResource CardBorderStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接状态" />
+                            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                            <Button Click="ConnectButton_OnClick" Content="连接到后端" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </NavigationView.PaneHeader>
+
+            <NavigationView.Header>
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock FontSize="28" FontWeight="SemiBold" Text="{x:Bind ViewModel.CurrentPageTitle, Mode=OneWay}" />
+                        <TextBlock Opacity="0.72" Text="{x:Bind ViewModel.CurrentPageSubtitle, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Click="RefreshButton_OnClick" Content="刷新" VerticalAlignment="Center" />
+                    <ProgressRing
+                        Grid.Column="2"
+                        Width="20"
+                        Height="20"
+                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" />
+                </Grid>
+            </NavigationView.Header>
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="进程" Tag="Processes">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="AllApps" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="网络" Tag="Network">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Globe" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="服务" Tag="Services">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Setting" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="文件" Tag="Files">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Folder" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="内核模块" Tag="KernelModules">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Page" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="句柄" Tag="Handles">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Link" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="启动项" Tag="Startup">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Play" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="审计日志" Tag="Audit">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.PaneFooter>
+                <StackPanel Margin="12" Spacing="10">
+                    <Button Click="ExportButton_OnClick" Content="导出报告" />
+                    <Border Style="{StaticResource CardBorderStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="健康状态" />
+                            <TextBlock Text="{x:Bind ViewModel.OverallHealth, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </NavigationView.PaneFooter>
+
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+    </Grid>
+</Window>
