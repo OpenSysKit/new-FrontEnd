@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -44,6 +44,8 @@ jobs:
             /p:RuntimeIdentifierOverride=win-x64 `
             /p:SelfContained=true `
             /p:WindowsAppSDKSelfContained=true `
+            /p:PublishTrimmed=true `
+            /p:TrimMode=partial `
             /p:DebugSymbols=false `
             /p:DebugType=None `
             /bl:$env:GITHUB_WORKSPACE\artifacts\publish.binlog
