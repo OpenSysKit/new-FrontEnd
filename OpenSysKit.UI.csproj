@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>OpenSysKit.UI</RootNamespace>
     <AssemblyName>OpenSysKit.UI</AssemblyName>
-    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
   <ItemGroup>
@@ -16,8 +15,5 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 </Project>
