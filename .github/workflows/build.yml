@@ -86,29 +86,7 @@ jobs:
         run: |
           throw "dotnet publish failed"
 
-      - name: Setup UPX
-        if: steps.publish.outcome == 'success'
-        shell: pwsh
-        run: |
-          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/upx/upx/releases/latest"
-          $asset = $release.assets |
-            Where-Object { $_.name -like "upx-*-win64.zip" } |
-            Select-Object -First 1
-          if (-not $asset) {
-            throw "Could not find a Win64 UPX release asset"
-          }
-          $zipPath = Join-Path $env:RUNNER_TEMP $asset.name
-          $upxDir = Join-Path $env:RUNNER_TEMP "upx"
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
-          Expand-Archive -Path $zipPath -DestinationPath $upxDir -Force
-          $upxExe = Get-ChildItem -Path $upxDir -Filter "upx.exe" -File -Recurse |
-            Select-Object -First 1
-          if (-not $upxExe) {
-            throw "upx.exe not found after extraction"
-          }
-          Add-Content -Path $env:GITHUB_PATH -Value $upxExe.Directory.FullName
-
-      - name: Compress executable with UPX
+      - name: Report published sizes
         if: steps.publish.outcome == 'success'
         shell: pwsh
         run: |
@@ -117,11 +95,13 @@ jobs:
           if (-not $exe) {
             throw "Could not find OpenSysKit.UI.exe under bin"
           }
-          $before = (Get-Item $exe.FullName).Length
-          & upx --best --lzma --overlay=copy $exe.FullName
-          & upx -t $exe.FullName
-          $after = (Get-Item $exe.FullName).Length
-          Write-Host "UPX compressed OpenSysKit.UI.exe from $before to $after bytes"
+          $publishDir = Split-Path $exe.FullName -Parent
+          Write-Host ("Executable size: {0} bytes" -f $exe.Length)
+          Write-Host "Top published files by size:"
+          Get-ChildItem -Path $publishDir -File -Force |
+            Sort-Object Length -Descending |
+            Select-Object -First 15 Name, Length |
+            Format-Table -AutoSize
 
       - name: Archive output
         if: steps.publish.outcome == 'success'
