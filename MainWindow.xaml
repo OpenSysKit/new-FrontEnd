@@ -77,7 +77,6 @@
                     <Grid RowDefinitions="Auto,Auto" RowSpacing="14">
                         <StackPanel>
                             <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding CurrentPageTitle}" />
-                            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding CurrentPageSubtitle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
 
                         <Border
