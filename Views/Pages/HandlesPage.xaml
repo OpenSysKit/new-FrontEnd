@@ -5,38 +5,71 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <StackPanel Padding="20" Spacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel Spacing="8">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目标进程" />
-                    <TextBlock Text="{Binding SelectedProcessDisplay}" />
-                    <TextBlock Opacity="0.72" Text="切换到本页会自动选择当前进程并加载句柄统计。" />
+    <Grid Padding="20" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+            <Border Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="目标进程" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedProcessDisplay}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="切页后默认自动加载" />
                 </StackPanel>
             </Border>
 
+            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型数" />
+                    <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding HandleTypes.Count}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding HandlesSummary}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="句柄统计面板" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+            <Button Command="{Binding LoadHandlesCommand}" Content="刷新句柄" />
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="2.2*,1*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <Grid ColumnDefinitions="120,2*,140" Margin="0,0,0,8">
+                <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                    <Grid ColumnDefinitions="120,2*,140" Margin="0,0,0,4">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型索引" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="类型名称" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="句柄数量" />
                     </Grid>
-                    <ListView ItemsSource="{Binding HandleTypes}">
+
+                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding HandleTypes}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="120,2*,140" Padding="0,6">
-                                    <TextBlock Text="{Binding TypeIndex}" />
-                                    <TextBlock Grid.Column="1" Text="{Binding TypeName}" />
-                                    <TextBlock Grid.Column="2" Text="{Binding Count}" />
-                                </Grid>
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <Grid ColumnDefinitions="120,2*,140">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding TypeIndex}" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding TypeName}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding Count}" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
 
-            <Button Command="{Binding LoadHandlesCommand}" Content="刷新句柄" />
-        </StackPanel>
-    </ScrollViewer>
+            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="统计说明" />
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding HandlesSummary}" TextWrapping="WrapWholeWords" />
+                    <Border Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <TextBlock Opacity="0.82" Text="这一页保留任务管理器式的高信息密度，用来快速判断目标进程主要消耗了哪些对象类型。" TextWrapping="WrapWholeWords" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </Page>

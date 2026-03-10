@@ -5,19 +5,37 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <StackPanel Padding="20" Spacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBlock VerticalAlignment="Center" Text="当前过滤" />
-                    <TextBlock VerticalAlignment="Center" Text="{Binding NetProtocol}" />
-                    <TextBlock VerticalAlignment="Center" Text="{Binding ConnectionsSummary}" />
+    <Grid Padding="20" RowDefinitions="Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+            <Border Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接数" />
+                    <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding Connections.Count}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding ConnectionsSummary}" />
                 </StackPanel>
             </Border>
 
+            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="过滤器" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding NetProtocol}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="当前网络协议视图" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedConnectionDisplay}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding StatusMessage}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="2.3*,1*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <Grid ColumnDefinitions="80,200,220,100,100,*" Margin="0,0,0,8">
+                <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                    <Grid ColumnDefinitions="80,200,220,100,100,*" Margin="0,0,0,4">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="协议" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="本地地址" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="远端地址" />
@@ -25,22 +43,50 @@
                         <TextBlock Grid.Column="4" Style="{StaticResource SectionHeaderTextStyle}" Text="PID" />
                         <TextBlock Grid.Column="5" Style="{StaticResource SectionHeaderTextStyle}" Text="进程名" />
                     </Grid>
-                    <ListView ItemsSource="{Binding Connections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
+
+                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding Connections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="80,200,220,100,100,*" Padding="0,6">
-                                    <TextBlock Text="{Binding Protocol}" />
-                                    <TextBlock Grid.Column="1" Text="{Binding LocalEndpoint}" />
-                                    <TextBlock Grid.Column="2" Text="{Binding RemoteEndpoint}" />
-                                    <TextBlock Grid.Column="3" Text="{Binding State}" />
-                                    <TextBlock Grid.Column="4" Text="{Binding ProcessId}" />
-                                    <TextBlock Grid.Column="5" Text="{Binding ProcessName}" />
-                                </Grid>
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <Grid ColumnDefinitions="80,200,220,100,100,*">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding Protocol}" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding LocalEndpoint}" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding RemoteEndpoint}" />
+                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding State}" />
+                                        <TextBlock Grid.Column="4" Style="{StaticResource DataValueTextStyle}" Text="{Binding ProcessId}" />
+                                        <TextBlock Grid.Column="5" Style="{StaticResource DataValueTextStyle}" Text="{Binding ProcessName}" TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
-        </StackPanel>
-    </ScrollViewer>
+
+            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接详情" />
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedConnectionDisplay}" TextTrimming="CharacterEllipsis" />
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="摘要" />
+                            <TextBlock Grid.Column="1" Text="{Binding ConnectionsSummary}" />
+                        </Grid>
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="过滤" />
+                            <TextBlock Grid.Column="1" Text="{Binding NetProtocol}" />
+                        </Grid>
+                        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
+                        </Grid>
+                    </Grid>
+
+                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <TextBlock Opacity="0.82" Text="这个页面保持任务管理器式紧凑密度，重点突出协议、状态和归属进程。" TextWrapping="WrapWholeWords" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </Page>

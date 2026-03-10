@@ -10,43 +10,108 @@
                 <muxc:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
 
-            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#171717" />
-            <SolidColorBrush x:Key="ShellSurfaceBrush" Color="#1F1F1F" />
-            <SolidColorBrush x:Key="ShellPanelBrush" Color="#242424" />
-            <SolidColorBrush x:Key="ShellBorderBrush" Color="#343434" />
-            <SolidColorBrush x:Key="ShellAccentBrush" Color="#5CA7FF" />
-            <SolidColorBrush x:Key="ShellDangerBrush" Color="#F16C6C" />
-            <SolidColorBrush x:Key="ShellMutedBrush" Color="#A7A7A7" />
+            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#111315" />
+            <SolidColorBrush x:Key="ShellSurfaceBrush" Color="#181B1F" />
+            <SolidColorBrush x:Key="ShellPanelBrush" Color="#1E2227" />
+            <SolidColorBrush x:Key="ShellPanelAltBrush" Color="#23282E" />
+            <SolidColorBrush x:Key="ShellBorderBrush" Color="#2C3238" />
+            <SolidColorBrush x:Key="ShellRowBorderBrush" Color="#23292F" />
+            <SolidColorBrush x:Key="ShellAccentBrush" Color="#76B4FF" />
+            <SolidColorBrush x:Key="ShellSuccessBrush" Color="#5FCE8A" />
+            <SolidColorBrush x:Key="ShellWarningBrush" Color="#D7AA5B" />
+            <SolidColorBrush x:Key="ShellDangerBrush" Color="#EB6B6B" />
+            <SolidColorBrush x:Key="ShellMutedBrush" Color="#9DA6AF" />
+            <SolidColorBrush x:Key="ShellTextBrush" Color="#F1F4F8" />
 
             <Style x:Key="CardBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource ShellPanelBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16" />
+            </Style>
+
+            <Style x:Key="MetricCardBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource ShellSurfaceBrush}" />
                 <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="10" />
-                <Setter Property="Padding" Value="14" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="14,12" />
             </Style>
 
             <Style x:Key="SectionHeaderTextStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource ShellMutedBrush}" />
+            </Style>
+
+            <Style x:Key="PageTitleTextStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
+            </Style>
+
+            <Style x:Key="PageSubtitleTextStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{StaticResource ShellMutedBrush}" />
+            </Style>
+
+            <Style x:Key="MetricValueTextStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
+            </Style>
+
+            <Style x:Key="DataValueTextStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
             </Style>
 
             <Style TargetType="Button">
                 <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="Padding" Value="14,8" />
                 <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Background" Value="{StaticResource ShellPanelAltBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="14,8" />
+                <Setter Property="Foreground" Value="#09111A" />
+                <Setter Property="Background" Value="{StaticResource ShellAccentBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
             </Style>
 
             <Style x:Key="DangerButtonStyle" TargetType="Button">
                 <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="Padding" Value="14,8" />
                 <Setter Property="Foreground" Value="White" />
                 <Setter Property="Background" Value="{StaticResource ShellDangerBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
             </Style>
 
             <Style TargetType="ListView">
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Background" Value="Transparent" />
+                <Setter Property="IsTabStop" Value="False" />
+            </Style>
+
+            <Style x:Key="DataListViewItemStyle" TargetType="ListViewItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+
+            <Style x:Key="ToolbarTextBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource ShellSurfaceBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ShellBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

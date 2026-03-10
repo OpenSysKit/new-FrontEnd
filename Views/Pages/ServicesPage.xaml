@@ -5,39 +5,87 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <StackPanel Padding="20" Spacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <TextBlock Text="{Binding ServicesSummary}" />
+    <Grid Padding="20" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+            <Border Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务数" />
+                    <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding Services.Count}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding ServicesSummary}" />
+                </StackPanel>
             </Border>
 
+            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedServiceDisplay}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="单击列表项即可切换" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="操作状态" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="启停后自动刷新" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Command="{Binding StartServiceCommand}" Content="启动服务" Style="{StaticResource PrimaryButtonStyle}" />
+                <Button Command="{Binding StopServiceCommand}" Content="停止服务" Style="{StaticResource DangerButtonStyle}" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="2.2*,1*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <Grid ColumnDefinitions="220,2*,120,120" Margin="0,0,0,8">
+                <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                    <Grid ColumnDefinitions="220,2*,120,120" Margin="0,0,0,4">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务名" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="显示名" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
                         <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="启动类型" />
                     </Grid>
-                    <ListView ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}">
+
+                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="220,2*,120,120" Padding="0,6">
-                                    <TextBlock Text="{Binding Name}" />
-                                    <TextBlock Grid.Column="1" Text="{Binding DisplayName}" />
-                                    <TextBlock Grid.Column="2" Text="{Binding State}" />
-                                    <TextBlock Grid.Column="3" Text="{Binding StartType}" />
-                                </Grid>
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <Grid ColumnDefinitions="220,2*,120,120">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding State}" />
+                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding StartType}" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
 
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Command="{Binding StartServiceCommand}" Content="启动服务" />
-                <Button Command="{Binding StopServiceCommand}" Content="停止服务" Style="{StaticResource DangerButtonStyle}" />
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务详情" />
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedServiceDisplay}" TextTrimming="CharacterEllipsis" />
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="总览" />
+                            <TextBlock Grid.Column="1" Text="{Binding ServicesSummary}" />
+                        </Grid>
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
+                        </Grid>
+                    </Grid>
+
+                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <TextBlock Opacity="0.82" Text="保持偏任务管理器的扁平管理界面，强调服务状态和动作，而不是展示性卡片。" TextWrapping="WrapWholeWords" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </Page>

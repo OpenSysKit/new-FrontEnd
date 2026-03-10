@@ -68,14 +68,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public string CurrentPageSubtitle => CurrentPage switch
     {
-        NavPage.Processes => "接近 Windows 11 任务管理器的进程总览与控制入口。",
-        NavPage.Network => "实时查看 TCP / UDP 连接及所属进程。",
-        NavPage.Services => "查看、启动和停止系统服务。",
-        NavPage.Files => "按 Explorer 方式浏览目录，双击文件夹直接进入。",
-        NavPage.KernelModules => "查看当前已加载的内核模块。",
-        NavPage.Handles => "切换到页面后自动加载当前选中进程的句柄统计。",
-        NavPage.Startup => "集中查看系统启动项。",
-        NavPage.Audit => "查看最近的审计事件。",
+        NavPage.Processes => "以任务管理器风格集中查看进程、模块和线程活动。",
+        NavPage.Network => "用紧凑表格查看连接、状态和归属进程。",
+        NavPage.Services => "面向运维操作的服务状态与启停控制台。",
+        NavPage.Files => "像 Explorer 一样直接进入目录并查看选中项信息。",
+        NavPage.KernelModules => "快速查看已加载驱动与模块映射。",
+        NavPage.Handles => "切页即载入当前目标进程的句柄类型统计。",
+        NavPage.Startup => "统一审视开机项与其触发来源。",
+        NavPage.Audit => "用时间序列方式浏览近期审计事件。",
         _ => ""
     };
 
@@ -86,9 +86,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string ProcessesSummary => $"当前共 {Processes.Count} 个进程";
     public string ConnectionsSummary => $"当前共 {Connections.Count} 条连接";
     public string ServicesSummary => $"当前共 {Services.Count} 个服务";
+    public string FilesSummary => $"当前目录共 {FileEntries.Count} 项";
     public string KernelModulesSummary => $"当前共 {KernelModules.Count} 个模块";
+    public string HandlesSummary => $"当前共 {HandleTypes.Count} 类句柄 / 合计 {HandleTypes.Sum(item => item.Count)}";
     public string StartupSummary => $"当前共 {StartupEntries.Count} 个启动项";
     public string AuditSummary => $"当前共 {AuditEntries.Count} 条审计日志";
+    public string SelectedConnectionDisplay => SelectedConnection == null
+        ? "未选择连接"
+        : $"{SelectedConnection.ProcessName} ({SelectedConnection.LocalEndpoint})";
+    public string SelectedServiceDisplay => SelectedService == null
+        ? "未选择服务"
+        : $"{SelectedService.DisplayName} ({SelectedService.State})";
+    public string SelectedFileDisplay => SelectedFile == null ? "未选择项目" : SelectedFile.Name;
+    public string SelectedFileKind => SelectedFile == null ? "—" : SelectedFile.KindLabel;
+    public string SelectedFilePath => SelectedFile == null ? "—" : SelectedFile.Path;
 
     partial void OnCurrentPageChanged(NavPage value)
     {
@@ -104,6 +115,23 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             _ = LoadHandlesAsync();
         }
+    }
+
+    partial void OnSelectedConnectionChanged(NetworkConnection? value)
+    {
+        OnPropertyChanged(nameof(SelectedConnectionDisplay));
+    }
+
+    partial void OnSelectedServiceChanged(ServiceInfo? value)
+    {
+        OnPropertyChanged(nameof(SelectedServiceDisplay));
+    }
+
+    partial void OnSelectedFileChanged(FileEntry? value)
+    {
+        OnPropertyChanged(nameof(SelectedFileDisplay));
+        OnPropertyChanged(nameof(SelectedFileKind));
+        OnPropertyChanged(nameof(SelectedFilePath));
     }
 
     [RelayCommand]
@@ -204,6 +232,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         var types = result["types"]?.Deserialize<List<HandleTypeInfo>>(JsonOptions) ?? [];
         ReplaceCollection(HandleTypes, types);
+        OnPropertyChanged(nameof(HandlesSummary));
         StatusMessage = $"句柄: {SelectedProcess.ImageName} 共 {types.Sum(item => item.Count)} 个";
     }
 
@@ -505,6 +534,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ParentPath = result["parent_path"]?.GetValue<string>() ?? "";
         var files = result["entries"]?.Deserialize<List<FileEntry>>(JsonOptions) ?? [];
         ReplaceCollection(FileEntries, files);
+        OnPropertyChanged(nameof(FilesSummary));
         StatusMessage = $"目录: {files.Count} 项";
     }
 

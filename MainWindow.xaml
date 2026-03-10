@@ -4,70 +4,151 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewModels="using:OpenSysKit.UI.ViewModels"
     mc:Ignorable="d">
     <Grid x:Name="RootGrid" Background="{StaticResource ShellBackgroundBrush}">
         <NavigationView
             x:Name="ShellNav"
-            AlwaysShowHeader="True"
+            AlwaysShowHeader="False"
+            CompactModeThresholdWidth="0"
+            CompactPaneLength="56"
+            ExpandedModeThresholdWidth="0"
             IsBackButtonVisible="Collapsed"
+            IsPaneOpen="True"
             IsSettingsVisible="False"
-            PaneDisplayMode="Left"
+            OpenPaneLength="232"
+            PaneDisplayMode="LeftCompact"
             SelectionChanged="ShellNav_OnSelectionChanged">
             <NavigationView.PaneHeader>
-                <StackPanel Margin="12,16,12,12" Spacing="10">
-                    <TextBlock FontSize="24" FontWeight="SemiBold" Text="OpenSysKit" />
-                    <TextBlock Opacity="0.72" Text="WinUI 3 shell for system operations." />
-                    <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Margin="16,18,16,12" Spacing="12">
+                    <StackPanel Spacing="2">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="OpenSysKit" />
+                        <TextBlock Opacity="0.72" Text="System control console" />
+                    </StackPanel>
+                    <Border Style="{StaticResource MetricCardBorderStyle}">
                         <StackPanel Spacing="8">
-                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接状态" />
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="会话" />
                             <TextBlock Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
-                            <Button Click="ConnectButton_OnClick" Content="连接到后端" />
+                            <Button Click="ConnectButton_OnClick" Content="连接后端" Style="{StaticResource PrimaryButtonStyle}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </NavigationView.PaneHeader>
 
-            <NavigationView.Header>
-                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" VerticalAlignment="Center">
-                    <StackPanel>
-                        <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding CurrentPageTitle}" />
-                        <TextBlock Opacity="0.72" Text="{Binding CurrentPageSubtitle}" TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                    <Button Grid.Column="1" Click="RefreshButton_OnClick" Content="刷新" VerticalAlignment="Center" />
-                    <ProgressRing
-                        Grid.Column="2"
-                        Width="20"
-                        Height="20"
-                        IsActive="{Binding IsLoading}"
-                        VerticalAlignment="Center" />
-                </Grid>
-            </NavigationView.Header>
-
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="进程" Tag="Processes" />
-                <NavigationViewItem Content="网络" Tag="Network" />
-                <NavigationViewItem Content="服务" Tag="Services" />
-                <NavigationViewItem Content="文件" Tag="Files" />
-                <NavigationViewItem Content="内核模块" Tag="KernelModules" />
-                <NavigationViewItem Content="句柄" Tag="Handles" />
-                <NavigationViewItem Content="启动项" Tag="Startup" />
-                <NavigationViewItem Content="审计日志" Tag="Audit" />
+                <NavigationViewItem Content="进程" Tag="Processes">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="AllApps" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="网络" Tag="Network">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="World" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="服务" Tag="Services">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Setting" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="文件" Tag="Files">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Folder" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="内核模块" Tag="KernelModules">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Library" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="句柄" Tag="Handles">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="List" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="启动项" Tag="Startup">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Play" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="审计日志" Tag="Audit">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <NavigationView.PaneFooter>
-                <StackPanel Margin="12" Spacing="10">
-                    <Button Click="ExportButton_OnClick" Content="导出报告" />
-                    <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Margin="16,8,16,16" Spacing="10">
+                    <Border Style="{StaticResource MetricCardBorderStyle}">
                         <StackPanel Spacing="6">
-                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="健康状态" />
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="系统健康" />
                             <TextBlock Text="{Binding OverallHealth}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </NavigationView.PaneFooter>
 
-            <Frame x:Name="ContentFrame" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border
+                    Padding="20,18,20,14"
+                    Background="{StaticResource ShellPanelBrush}"
+                    BorderBrush="{StaticResource ShellBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" RowSpacing="14">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding CurrentPageTitle}" />
+                            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding CurrentPageSubtitle}" TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1" Click="RefreshButton_OnClick" Content="刷新" VerticalAlignment="Center" />
+                        <Button Grid.Column="2" Click="ExportButton_OnClick" Content="导出" VerticalAlignment="Center" />
+
+                        <Grid Grid.Row="1" Grid.ColumnSpan="3" ColumnDefinitions="220,220,220,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource MetricCardBorderStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="连接状态" />
+                                    <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding StatusMessage}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="健康状态" />
+                                    <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding OverallHealth}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <ProgressRing
+                                        Width="18"
+                                        Height="18"
+                                        IsActive="{Binding IsLoading}"
+                                        VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="加载状态" />
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="自动刷新" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Column="3" Style="{StaticResource MetricCardBorderStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前目标" />
+                                    <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding SelectedProcessDisplay}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Frame x:Name="ContentFrame" Grid.Row="1" />
+            </Grid>
         </NavigationView>
     </Grid>
 </Window>

@@ -5,55 +5,107 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <StackPanel Padding="20" Spacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel Spacing="10">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button Command="{Binding NavigateUpCommand}" Content="返回上级" />
-                        <TextBox
-                            x:Name="PathBox"
-                            KeyDown="PathBox_OnKeyDown"
-                            MinWidth="520"
-                            PlaceholderText="输入路径后按 Enter"
-                            Text="{Binding CurrentPath, Mode=TwoWay}" />
-                    </StackPanel>
-                    <TextBlock Opacity="0.72" Text="双击文件夹可直接进入，不再依赖单独的跳转按钮。" />
+    <Grid Padding="20" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="1.4*,*,*" ColumnSpacing="12">
+            <Border Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前位置" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding CurrentPath}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding FilesSummary}" />
                 </StackPanel>
             </Border>
 
+            <Border Grid.Column="1" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="上级目录" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding ParentPath}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="Explorer 式回退" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource MetricCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="当前选择" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding SelectedFileKind}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <Button Command="{Binding NavigateUpCommand}" Content="返回上级" />
+                <TextBox
+                    x:Name="PathBox"
+                    Grid.Column="1"
+                    KeyDown="PathBox_OnKeyDown"
+                    PlaceholderText="输入路径后按 Enter"
+                    Style="{StaticResource ToolbarTextBoxStyle}"
+                    Text="{Binding CurrentPath, Mode=TwoWay}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="2.4*,1*" ColumnSpacing="16">
             <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <Grid ColumnDefinitions="100,2*,120,180,*" Margin="0,0,0,8">
+                <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                    <Grid ColumnDefinitions="100,2*,120,180,*" Margin="0,0,0,4">
                         <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类别" />
                         <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="名称" />
                         <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="大小" />
                         <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="修改时间" />
                         <TextBlock Grid.Column="4" Style="{StaticResource SectionHeaderTextStyle}" Text="路径" />
                     </Grid>
+
                     <ListView
                         x:Name="EntriesList"
+                        Grid.Row="1"
                         DoubleTapped="EntriesList_OnDoubleTapped"
+                        ItemContainerStyle="{StaticResource DataListViewItemStyle}"
                         ItemsSource="{Binding FileEntries}"
                         SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="100,2*,120,180,*" Padding="0,6">
-                                    <TextBlock Text="{Binding KindLabel}" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" />
-                                    <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" />
-                                    <TextBlock Grid.Column="3" Text="{Binding ModTime}" />
-                                    <TextBlock Grid.Column="4" Text="{Binding Path}" />
-                                </Grid>
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <Grid ColumnDefinitions="100,2*,120,180,*">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding KindLabel}" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
+                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ModTime}" />
+                                        <TextBlock Grid.Column="4" Style="{StaticResource DataValueTextStyle}" Text="{Binding Path}" TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
 
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Command="{Binding DeleteFileCommand}" Content="内核删除" Style="{StaticResource DangerButtonStyle}" />
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="项信息" />
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedFileKind}" />
+                        </Grid>
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="路径" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedFilePath}" TextWrapping="WrapWholeWords" />
+                        </Grid>
+                        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
+                        </Grid>
+                    </Grid>
+
+                    <Border Grid.Row="3" Background="{StaticResource ShellSurfaceBrush}" BorderBrush="{StaticResource ShellBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <TextBlock Opacity="0.82" Text="双击文件夹会直接进入；文件保持选中，可在这里执行删除等动作。" TextWrapping="WrapWholeWords" />
+                    </Border>
+
+                    <Button Grid.Row="4" Command="{Binding DeleteFileCommand}" Content="内核删除" Style="{StaticResource DangerButtonStyle}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </Page>
