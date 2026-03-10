@@ -8,7 +8,7 @@ using OpenSysKit.UI.ViewModels;
 
 namespace OpenSysKit.UI.Views;
 
-public partial class NavItem : UserControl
+public class NavItem : UserControl
 {
     public static readonly StyledProperty<string> LabelProperty =
         AvaloniaProperty.Register<NavItem, string>(nameof(Label), "");
@@ -36,8 +36,8 @@ public partial class NavItem : UserControl
 
     public NavItem()
     {
-        InitializeComponent();
         PropertyChanged += OnPropChanged;
+        InitializeComponent();
     }
 
     private void InitializeComponent()

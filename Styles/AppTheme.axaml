@@ -87,7 +87,7 @@
     <Setter Property="FontSize" Value="10"/>
     <Setter Property="FontWeight" Value="Medium"/>
     <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
-    <Setter Property="CharacterSpacing" Value="100"/>
+    <Setter Property="LetterSpacing" Value="1.5"/>
   </Style>
   <Style Selector="TextBlock.ok">
     <Setter Property="Foreground" Value="{StaticResource BrStatusOk}"/>
@@ -191,7 +191,6 @@
     <Setter Property="GridLinesVisibility" Value="Horizontal"/>
     <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BrBorderSubtle}"/>
     <Setter Property="RowBackground" Value="Transparent"/>
-    <Setter Property="AlternatingRowBackground" Value="#0A1A2A"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="ColumnHeaderHeight" Value="34"/>
     <Setter Property="RowHeight" Value="30"/>
@@ -202,7 +201,7 @@
     <Setter Property="Foreground" Value="{StaticResource BrTextMuted}"/>
     <Setter Property="FontSize" Value="10"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
-    <Setter Property="CharacterSpacing" Value="80"/>
+    <Setter Property="LetterSpacing" Value="1.0"/>
     <Setter Property="Padding" Value="10,0"/>
     <Setter Property="BorderBrush" Value="{StaticResource BrBorderSubtle}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
