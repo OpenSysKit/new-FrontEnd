@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.Linq;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -7,14 +6,12 @@ using Microsoft.UI.Xaml.Controls;
 using OpenSysKit.UI.ViewModels;
 using OpenSysKit.UI.Views.Pages;
 using WinRT.Interop;
-using Forms = System.Windows.Forms;
 
 namespace OpenSysKit.UI;
 
 public sealed partial class MainWindow : Window
 {
     private readonly AppWindow _appWindow;
-    private readonly Forms.NotifyIcon _notifyIcon;
     private bool _isExiting;
     private bool _didAutoConnect;
 
@@ -32,7 +29,6 @@ public sealed partial class MainWindow : Window
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
         _appWindow.Closing += AppWindow_OnClosing;
-        _notifyIcon = CreateNotifyIcon();
 
         Activated += OnActivated;
         Closed += OnClosed;
@@ -42,23 +38,6 @@ public sealed partial class MainWindow : Window
             ShellNav.SelectedItem = firstItem;
             ContentFrame.Navigate(typeof(ProcessesPage), ViewModel);
         }
-    }
-
-    private Forms.NotifyIcon CreateNotifyIcon()
-    {
-        var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("显示主窗口", null, (_, _) => ShowFromTray());
-        menu.Items.Add("退出", null, (_, _) => ExitFromTray());
-
-        var notifyIcon = new Forms.NotifyIcon
-        {
-            Text = "OpenSysKit",
-            Visible = true,
-            Icon = SystemIcons.Application,
-            ContextMenuStrip = menu
-        };
-        notifyIcon.DoubleClick += (_, _) => ShowFromTray();
-        return notifyIcon;
     }
 
     private async void OnActivated(object sender, WindowActivatedEventArgs args)
@@ -126,14 +105,21 @@ public sealed partial class MainWindow : Window
     private void ExitFromTray()
     {
         _isExiting = true;
-        _notifyIcon.Visible = false;
         Close();
+    }
+
+    private void ShowWindowMenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        ShowFromTray();
+    }
+
+    private void ExitAppMenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        ExitFromTray();
     }
 
     private void OnClosed(object sender, WindowEventArgs args)
     {
-        _notifyIcon.Visible = false;
-        _notifyIcon.Dispose();
         ViewModel.Dispose();
     }
 }
