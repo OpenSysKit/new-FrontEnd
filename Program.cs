@@ -1,13 +1,10 @@
 using Avalonia;
-using System;
 
 namespace OpenSysKit.UI;
 
-class Program
+// Main 入口在 App.axaml.cs 的 Program 类里
+public static class AppBuilderHelper
 {
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
