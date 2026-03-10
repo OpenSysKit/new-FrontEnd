@@ -45,11 +45,18 @@ jobs:
         run: |
           Write-Host "Publish failed. Dumping likely XAML compiler artifacts..."
           Get-ChildItem -Recurse obj\Release -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize
-          Get-ChildItem -Recurse obj\Release -Include *.json,*.log,*.err,*.txt -ErrorAction SilentlyContinue |
-            ForEach-Object {
-              Write-Host "==== $($_.FullName) ===="
-              Get-Content $_.FullName -ErrorAction SilentlyContinue
-            }
+          $outputJson = Get-ChildItem -Recurse obj\Release -Filter output.json -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($outputJson) {
+            Write-Host "==== Parsed output.json errors ===="
+            $content = Get-Content $outputJson.FullName -Raw | ConvertFrom-Json
+            $content.Errors | ConvertTo-Json -Depth 10
+          }
+          $inputJson = Get-ChildItem -Recurse obj\Release -Filter input.json -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($inputJson) {
+            Write-Host "==== Parsed input.json page map ===="
+            $content = Get-Content $inputJson.FullName -Raw | ConvertFrom-Json
+            $content.XamlPages | Select-Object ItemSpec, ClassFullName | ConvertTo-Json -Depth 5
+          }
 
       - name: Fail when publish did not succeed
         if: steps.publish.outcome == 'failure'
