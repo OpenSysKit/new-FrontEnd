@@ -6,7 +6,9 @@
     RequestedTheme="Dark">
     <Application.Resources>
         <ResourceDictionary>
-            <muxc:XamlControlsResources />
+            <ResourceDictionary.MergedDictionaries>
+                <muxc:XamlControlsResources />
+            </ResourceDictionary.MergedDictionaries>
 
             <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#171717" />
             <SolidColorBrush x:Key="ShellSurfaceBrush" Color="#1F1F1F" />
