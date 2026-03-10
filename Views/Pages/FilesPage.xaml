@@ -19,69 +19,46 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="2.6*,0.9*" ColumnSpacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                    <Grid ColumnDefinitions="96,2.6*,120,180" Margin="0,0,0,2">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类别" />
-                        <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="名称" />
-                        <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="大小" />
-                        <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="修改时间" />
-                    </Grid>
-
-                    <ListView
-                        x:Name="EntriesList"
-                        Grid.Row="1"
-                        DoubleTapped="EntriesList_OnDoubleTapped"
-                        ItemContainerStyle="{StaticResource DataListViewItemStyle}"
-                        ItemsSource="{Binding FileEntries}"
-                        RightTapped="EntriesList_OnRightTapped"
-                        SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
-                        <ListView.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Click="OpenMenuItem_OnClick" Text="打开" />
-                                <MenuFlyoutItem Click="CopyPathMenuItem_OnClick" Text="复制路径" />
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Click="KillLockingMenuItem_OnClick" Text="结束占用进程" />
-                                <MenuFlyoutItem Click="DeleteMenuItem_OnClick" Text="内核删除" />
-                            </MenuFlyout>
-                        </ListView.ContextFlyout>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                                    <Grid ColumnDefinitions="96,2.6*,120,180">
-                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding KindLabel}" />
-                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
-                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ModTime}" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+            <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                <Grid ColumnDefinitions="96,2.6*,120,180" Margin="0,0,0,2">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类别" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="名称" />
+                    <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="大小" />
+                    <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="修改时间" />
                 </Grid>
-            </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="详情" />
-                    <TextBlock Grid.Row="1" FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedFileDisplay}" TextTrimming="CharacterEllipsis" />
-                    <Grid Grid.Row="2" RowDefinitions="Auto,Auto" RowSpacing="10">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="类型" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedFileKind}" />
-                        </Grid>
-                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="路径" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedFilePath}" TextWrapping="WrapWholeWords" />
-                        </Grid>
-                    </Grid>
-                    <StackPanel Grid.Row="3" Spacing="4">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
-                        <TextBlock Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
+                <ListView
+                    x:Name="EntriesList"
+                    Grid.Row="1"
+                    DoubleTapped="EntriesList_OnDoubleTapped"
+                    ItemContainerStyle="{StaticResource DataListViewItemStyle}"
+                    ItemsSource="{Binding FileEntries}"
+                    RightTapped="EntriesList_OnRightTapped"
+                    SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
+                    <ListView.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Click="OpenMenuItem_OnClick" Text="打开" />
+                            <MenuFlyoutItem Click="CopyPathMenuItem_OnClick" Text="复制路径" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Click="KillLockingMenuItem_OnClick" Text="结束占用进程" />
+                            <MenuFlyoutItem Click="DeleteMenuItem_OnClick" Text="内核删除" />
+                        </MenuFlyout>
+                    </ListView.ContextFlyout>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                <Grid ColumnDefinitions="96,2.6*,120,180">
+                                    <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding KindLabel}" />
+                                    <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
+                                    <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ModTime}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

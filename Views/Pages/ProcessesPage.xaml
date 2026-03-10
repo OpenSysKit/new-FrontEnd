@@ -5,109 +5,92 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Padding="20" RowDefinitions="*" RowSpacing="16">
-        <Grid ColumnDefinitions="2.2*,1.15*" ColumnSpacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                    <Grid ColumnDefinitions="84,2.2*,132,96,96" Margin="0,0,0,2">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="PID" />
-                        <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="进程名" />
-                        <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="内存" />
-                        <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="线程" />
-                        <TextBlock Grid.Column="4" Style="{StaticResource SectionHeaderTextStyle}" Text="父 PID" />
-                    </Grid>
+    <Grid Padding="20" RowDefinitions="*,Auto" RowSpacing="16">
+        <Border Style="{StaticResource CardBorderStyle}">
+            <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                <Grid ColumnDefinitions="84,2.2*,132,96,96" Margin="0,0,0,2">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="PID" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="进程名" />
+                    <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="内存" />
+                    <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="线程" />
+                    <TextBlock Grid.Column="4" Style="{StaticResource SectionHeaderTextStyle}" Text="父 PID" />
+                </Grid>
 
-                    <ListView
-                        x:Name="ProcessesList"
-                        Grid.Row="1"
-                        ItemContainerStyle="{StaticResource DataListViewItemStyle}"
-                        ItemsSource="{Binding Processes}"
-                        RightTapped="ProcessesList_OnRightTapped"
-                        SelectedItem="{Binding SelectedProcess, Mode=TwoWay}">
-                        <ListView.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Click="TaskKillMenuItem_OnClick" Text="普通结束任务" />
-                                <MenuFlyoutItem Click="KernelKillMenuItem_OnClick" Text="内核结束" />
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Click="FreezeMenuItem_OnClick" Text="冻结" />
-                                <MenuFlyoutItem Click="UnfreezeMenuItem_OnClick" Text="解冻" />
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Click="ViewModulesMenuItem_OnClick" Text="加载模块" />
-                                <MenuFlyoutItem Click="ViewThreadsMenuItem_OnClick" Text="加载线程" />
-                            </MenuFlyout>
-                        </ListView.ContextFlyout>
+                <ListView
+                    x:Name="ProcessesList"
+                    Grid.Row="1"
+                    ItemContainerStyle="{StaticResource DataListViewItemStyle}"
+                    ItemsSource="{Binding Processes}"
+                    RightTapped="ProcessesList_OnRightTapped"
+                    SelectedItem="{Binding SelectedProcess, Mode=TwoWay}">
+                    <ListView.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Click="TaskKillMenuItem_OnClick" Text="普通结束任务" />
+                            <MenuFlyoutItem Click="KernelKillMenuItem_OnClick" Text="内核结束" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Click="FreezeMenuItem_OnClick" Text="冻结" />
+                            <MenuFlyoutItem Click="UnfreezeMenuItem_OnClick" Text="解冻" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Click="ViewModulesMenuItem_OnClick" Text="加载模块" />
+                            <MenuFlyoutItem Click="ViewThreadsMenuItem_OnClick" Text="加载线程" />
+                        </MenuFlyout>
+                    </ListView.ContextFlyout>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                <Grid ColumnDefinitions="84,2.2*,132,96,96">
+                                    <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ProcessId}" />
+                                    <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding ImageName}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding WorkingSetDisplay}" />
+                                    <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ThreadCount}" />
+                                    <TextBlock Grid.Column="4" Style="{StaticResource DataValueTextStyle}" Text="{Binding ParentProcessId}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
+
+        <Border
+            Grid.Row="1"
+            Style="{StaticResource CardBorderStyle}"
+            Visibility="{Binding DetailPanelVisibility}">
+            <Grid ColumnDefinitions="1.1*,0.9*" ColumnSpacing="16">
+                <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="模块" />
+                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding ProcessModules}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                                    <Grid ColumnDefinitions="84,2.2*,132,96,96">
-                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ProcessId}" />
-                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding ImageName}" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding WorkingSetDisplay}" />
-                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding ThreadCount}" />
-                                        <TextBlock Grid.Column="4" Style="{StaticResource DataValueTextStyle}" Text="{Binding ParentProcessId}" />
+                                    <Grid ColumnDefinitions="2.1*,150,110">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ModuleName}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding BaseAddressHex}" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
-            </Border>
 
-            <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="18">
-                <Border Style="{StaticResource CardBorderStyle}">
-                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="选中进程" />
-                        <TextBlock Grid.Row="1" FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedProcessDisplay}" TextTrimming="CharacterEllipsis" />
-                        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
-                            <StackPanel Spacing="4">
-                                <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
-                                <TextBlock Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Spacing="4">
-                                <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="自动刷新" />
-                                <TextBlock Text="{Binding AutoRefreshDisplay}" />
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                </Border>
-
-                <Border
-                    Grid.Row="1"
-                    Style="{StaticResource CardBorderStyle}"
-                    Visibility="{Binding DetailPanelVisibility}">
-                    <Grid RowDefinitions="Auto,*,Auto,*" RowSpacing="12">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="模块" />
-                        <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding ProcessModules}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                                        <Grid ColumnDefinitions="2.1*,150,110">
-                                            <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ModuleName}" TextTrimming="CharacterEllipsis" />
-                                            <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding BaseAddressHex}" />
-                                            <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding SizeDisplay}" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-
-                        <TextBlock Grid.Row="2" Style="{StaticResource SectionHeaderTextStyle}" Text="线程" />
-                        <ListView Grid.Row="3" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding ProcessThreads}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                                        <Grid ColumnDefinitions="96,96,*">
-                                            <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ThreadId}" />
-                                            <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding BasePriority}" />
-                                            <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding StartAddressHex}" TextTrimming="CharacterEllipsis" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
-                </Border>
+                <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="10">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="线程" />
+                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding ProcessThreads}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                                    <Grid ColumnDefinitions="96,96,*">
+                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding ThreadId}" />
+                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding BasePriority}" />
+                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding StartAddressHex}" TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
             </Grid>
-        </Grid>
+        </Border>
     </Grid>
 </Page>

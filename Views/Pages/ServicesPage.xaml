@@ -13,43 +13,30 @@
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="2.2*,1*" ColumnSpacing="16">
-            <Border Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                    <Grid ColumnDefinitions="220,2*,120,120" Margin="0,0,0,4">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务名" />
-                        <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="显示名" />
-                        <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
-                        <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="启动类型" />
-                    </Grid>
-
-                    <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
-                                    <Grid ColumnDefinitions="220,2*,120,120">
-                                        <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" />
-                                        <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding State}" />
-                                        <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding StartType}" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+            <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                <Grid ColumnDefinitions="220,2*,120,120" Margin="0,0,0,4">
+                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务名" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource SectionHeaderTextStyle}" Text="显示名" />
+                    <TextBlock Grid.Column="2" Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
+                    <TextBlock Grid.Column="3" Style="{StaticResource SectionHeaderTextStyle}" Text="启动类型" />
                 </Grid>
-            </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
-                <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
-                    <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="服务详情" />
-                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding SelectedServiceDisplay}" TextTrimming="CharacterEllipsis" />
-                    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <TextBlock Style="{StaticResource SectionHeaderTextStyle}" Text="状态" />
-                        <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="WrapWholeWords" />
-                    </Grid>
-                </Grid>
-            </Border>
-        </Grid>
+                <ListView Grid.Row="1" ItemContainerStyle="{StaticResource DataListViewItemStyle}" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource ShellRowBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                <Grid ColumnDefinitions="220,2*,120,120">
+                                    <TextBlock Style="{StaticResource DataValueTextStyle}" Text="{Binding Name}" />
+                                    <TextBlock Grid.Column="1" Style="{StaticResource DataValueTextStyle}" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Style="{StaticResource DataValueTextStyle}" Text="{Binding State}" />
+                                    <TextBlock Grid.Column="3" Style="{StaticResource DataValueTextStyle}" Text="{Binding StartType}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
