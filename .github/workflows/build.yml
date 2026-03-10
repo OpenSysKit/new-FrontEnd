@@ -90,7 +90,9 @@ jobs:
         if: steps.publish.outcome == 'success'
         shell: pwsh
         run: |
-          $zip = Join-Path $env:GITHUB_WORKSPACE "artifacts\OpenSysKit.UI-win-x64.zip"
+          $artifactsDir = Join-Path $env:GITHUB_WORKSPACE "artifacts"
+          New-Item -ItemType Directory -Path $artifactsDir -Force | Out-Null
+          $zip = Join-Path $artifactsDir "OpenSysKit.UI-win-x64.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
           $exe = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin" -Filter "OpenSysKit.UI.exe" -File -Recurse |
             Select-Object -First 1
