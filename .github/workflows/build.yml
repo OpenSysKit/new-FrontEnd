@@ -37,6 +37,9 @@ jobs:
           --self-contained true
           -p:WindowsPackageType=None
           -p:PublishSingleFile=false
+          -p:WindowsAppSDKSelfContained=true
+          -p:RuntimeIdentifierOverride=win-x64
+          -bl:${{ github.workspace }}\artifacts\publish.binlog
           -o "${{ github.workspace }}\artifacts\win-x64"
 
       - name: Dump build diagnostics on failure
@@ -57,6 +60,16 @@ jobs:
             $content = Get-Content $inputJson.FullName -Raw | ConvertFrom-Json
             $content.XamlPages | Select-Object ItemSpec, ClassFullName | ConvertTo-Json -Depth 5
           }
+
+      - name: Upload diagnostics on failure
+        if: steps.publish.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenSysKit-UI-build-diagnostics
+          path: |
+            artifacts/publish.binlog
+            obj/Release
+          if-no-files-found: warn
 
       - name: Fail when publish did not succeed
         if: steps.publish.outcome == 'failure'
