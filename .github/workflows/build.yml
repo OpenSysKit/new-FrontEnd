@@ -11,9 +11,6 @@ jobs:
   build:
     name: Build WinUI 3
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: FrontEnd
 
     steps:
       - name: Checkout
