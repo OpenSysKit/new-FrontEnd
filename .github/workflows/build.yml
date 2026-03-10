@@ -86,13 +86,13 @@ jobs:
         run: |
           $zip = Join-Path $env:GITHUB_WORKSPACE "artifacts\OpenSysKit.UI-win-x64.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
-          $publishDir = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin\Release" -Directory -Recurse |
-            Where-Object { $_.FullName -like '*\win-x64' } |
+          $exe = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin" -Filter "OpenSysKit.UI.exe" -File -Recurse |
             Select-Object -First 1
-          if (-not $publishDir) {
-            throw "Could not find win-x64 output under bin\\Release"
+          if (-not $exe) {
+            throw "Could not find OpenSysKit.UI.exe under bin"
           }
-          Compress-Archive -Path (Join-Path $publishDir.FullName '*') -DestinationPath $zip
+          $publishDir = Split-Path $exe.FullName -Parent
+          Compress-Archive -Path (Join-Path $publishDir '*') -DestinationPath $zip
 
       - name: Upload artifact
         if: steps.publish.outcome == 'success'
