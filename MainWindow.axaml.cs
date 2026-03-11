@@ -9,6 +9,7 @@ namespace OpenSysKit.UI;
 public partial class MainWindow : SukiWindow
 {
     public MainViewModel ViewModel { get; }
+    private bool _notifiedTray;
 
     public MainWindow()
     {
@@ -27,6 +28,17 @@ public partial class MainWindow : SukiWindow
 
     private void OnWindowClosing(object? sender, WindowClosingEventArgs e)
     {
+        if (!App.IsExiting)
+        {
+            e.Cancel = true;
+            Hide();
+            if (!_notifiedTray)
+            {
+                App.ShowTrayBalloon("OpenSysKit", "程序已最小化到系统托盘，单击图标可重新打开。");
+                _notifiedTray = true;
+            }
+            return;
+        }
         ViewModel.Dispose();
     }
 

@@ -81,18 +81,3 @@ jobs:
           name: OpenSysKit-UI-win-x64
           path: artifacts/OpenSysKit.UI-win-x64.zip
           if-no-files-found: error
-
-  trigger-backend:
-    name: Trigger backend bundle
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Dispatch backend workflow
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
-        run: |
-          gh workflow run build.yml \
-            --repo OpenSysKit/BackEnd \
-            --ref main

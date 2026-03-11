@@ -3,6 +3,21 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:suki="https://github.com/kikipoulet/SukiUI">
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="avares://OpenSysKit.UI/Assets/tray-icon.png"
+                      ToolTipText="OpenSysKit"
+                      Clicked="TrayIcon_OnClicked">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="打开" Click="TrayOpen_OnClick" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="退出" Click="TrayExit_OnClick" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
     <Application.Resources>
         <SolidColorBrush x:Key="SystemControlTransparentBrush" Color="Transparent" />
     </Application.Resources>
