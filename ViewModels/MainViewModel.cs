@@ -49,6 +49,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<HealthComponent> HealthComponents { get; } = [];
     public ObservableCollection<ModuleInfo> ProcessModules { get; } = [];
     public ObservableCollection<ThreadInfo> ProcessThreads { get; } = [];
+    public ObservableCollection<HandleDetailInfo> HandleDetails { get; } = [];
 
     private List<ProcessInfo> _allProcesses = [];
     private List<NetworkConnection> _allConnections = [];
@@ -60,6 +61,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private NetworkConnection? _selectedConnection;
     [ObservableProperty] private ServiceInfo? _selectedService;
     [ObservableProperty] private FileEntry? _selectedFile;
+    [ObservableProperty] private KernelModule? _selectedKernelModule;
+    [ObservableProperty] private HandleDetailInfo? _selectedHandle;
+    [ObservableProperty] private string _resolvePortText = "";
+    [ObservableProperty] private bool _showHandleDetails;
 
     public string CurrentPageTitle => CurrentPage switch
     {
@@ -95,6 +100,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string FilesSummary => $"当前目录共 {FileEntries.Count} 项";
     public string KernelModulesSummary => $"当前共 {KernelModules.Count} 个模块";
     public string HandlesSummary => $"当前共 {HandleTypes.Count} 类句柄 / 合计 {HandleTypes.Sum(item => item.Count)}";
+    public string HandleDetailsSummary => $"共 {HandleDetails.Count} 个句柄";
     public string StartupSummary => $"当前共 {StartupEntries.Count} 个启动项";
     public string AuditSummary => $"当前共 {AuditEntries.Count} 条审计日志";
     public string SelectedConnectionDisplay => SelectedConnection == null
@@ -585,6 +591,103 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusMessage = $"报告已导出: {result?["path"]?.GetValue<string>()}";
         }
         catch (Exception ex) { StatusMessage = $"导出失败: {ex.Message}"; }
+    }
+
+    // ── Kernel module operations ──────────────────────────────────
+
+    [RelayCommand]
+    private async Task UnloadDriverAsync()
+    {
+        if (SelectedKernelModule == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.UnloadDriver", new { service_name = SelectedKernelModule.ServiceName });
+            StatusMessage = $"已卸载驱动 {SelectedKernelModule.ModuleName}";
+            await LoadKernelModulesAsync();
+        }
+        catch (Exception ex) { StatusMessage = $"卸载驱动失败: {ex.Message}"; }
+    }
+
+    // ── Port conflict resolution ────────────────────────────────
+
+    [RelayCommand]
+    private async Task ResolvePortKillAsync()
+    {
+        if (!ushort.TryParse(ResolvePortText?.Trim(), out var port) || port == 0)
+        {
+            StatusMessage = "请输入有效端口号 (1-65535)";
+            return;
+        }
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.ResolvePortConflict", new
+            {
+                port = (int)port,
+                protocol = NetProtocol,
+                action = "kill"
+            });
+            StatusMessage = result?["summary"]?.GetValue<string>() ?? "端口处置完成";
+        }
+        catch (Exception ex) { StatusMessage = $"端口处置失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task ResolvePortDisconnectAsync()
+    {
+        if (!ushort.TryParse(ResolvePortText?.Trim(), out var port) || port == 0)
+        {
+            StatusMessage = "请输入有效端口号 (1-65535)";
+            return;
+        }
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.ResolvePortConflict", new
+            {
+                port = (int)port,
+                protocol = "tcp",
+                action = "disconnect"
+            });
+            StatusMessage = result?["summary"]?.GetValue<string>() ?? "断开连接完成";
+        }
+        catch (Exception ex) { StatusMessage = $"断开连接失败: {ex.Message}"; }
+    }
+
+    // ── Handle details ──────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ViewHandleDetailsAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.ListHandles", new { process_id = SelectedProcess.ProcessId });
+            if (result == null) return;
+
+            var handles = result["handles"]?.Deserialize<List<HandleDetailInfo>>(JsonOptions) ?? [];
+            ReplaceCollection(HandleDetails, handles);
+            ShowHandleDetails = true;
+            ShowHandlesPanel = true;
+            OnPropertyChanged(nameof(HandleDetailsSummary));
+            StatusMessage = $"句柄详情: {SelectedProcess.ImageName} 共 {handles.Count} 个";
+        }
+        catch (Exception ex) { StatusMessage = $"枚举句柄详情失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task CloseSelectedHandleAsync()
+    {
+        if (SelectedProcess == null || SelectedHandle == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.CloseHandle", new
+            {
+                process_id = SelectedProcess.ProcessId,
+                handle = SelectedHandle.Handle
+            });
+            StatusMessage = $"已关闭句柄 {SelectedHandle.HandleHex} ({SelectedHandle.TypeName})";
+            await ViewHandleDetailsAsync();
+        }
+        catch (Exception ex) { StatusMessage = $"关闭句柄失败: {ex.Message}"; }
     }
 
     // ── Search filter ───────────────────────────────────────────

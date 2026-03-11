@@ -116,4 +116,19 @@ public class KernelModule
     [JsonPropertyName("path")] public string Path { get; set; } = "";
     public string BaseAddressHex => $"0x{BaseAddress:X16}";
     public string SizeDisplay => $"{Size / 1024} KB";
+    public string ServiceName => System.IO.Path.GetFileNameWithoutExtension(ModuleName);
+}
+
+public class HandleDetailInfo
+{
+    [JsonPropertyName("process_id")] public uint ProcessId { get; set; }
+    [JsonPropertyName("handle")] public ulong Handle { get; set; }
+    [JsonPropertyName("object_type_index")] public uint ObjectTypeIndex { get; set; }
+    [JsonPropertyName("granted_access")] public uint GrantedAccess { get; set; }
+    [JsonPropertyName("object_address")] public ulong ObjectAddress { get; set; }
+    [JsonPropertyName("type_name")] public string TypeName { get; set; } = "";
+    [JsonPropertyName("object_name")] public string ObjectName { get; set; } = "";
+    public string HandleHex => $"0x{Handle:X}";
+    public string GrantedAccessHex => $"0x{GrantedAccess:X8}";
+    public string ObjectAddressHex => $"0x{ObjectAddress:X16}";
 }

@@ -56,7 +56,8 @@
                         <Separator />
                         <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
                         <MenuItem Header="查看线程" Command="{Binding ViewThreadsCommand}" />
-                        <MenuItem Header="查看句柄" Command="{Binding ViewHandlesCommand}" />
+                        <MenuItem Header="查看句柄统计" Command="{Binding ViewHandlesCommand}" />
+                        <MenuItem Header="查看句柄详情" Command="{Binding ViewHandleDetailsCommand}" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
@@ -134,10 +135,11 @@
             Padding="0"
             Margin="0,12,0,0"
             IsVisible="{Binding ShowHandlesPanel}">
-            <Grid RowDefinitions="Auto,*">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+                <!-- type summary -->
                 <Border Padding="16,10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="句柄" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                        <TextBlock Text="句柄类型统计" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
                         <TextBlock Text="{Binding HandlesSummary}" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
@@ -151,11 +153,47 @@
                     CanUserSortColumns="True"
                     Background="Transparent"
                     BorderThickness="0"
-                    MaxHeight="260">
+                    MaxHeight="180">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="类型索引" Binding="{Binding TypeIndex}" Width="120" />
                         <DataGridTextColumn Header="类型名称" Binding="{Binding TypeName}" Width="*" />
                         <DataGridTextColumn Header="句柄数量" Binding="{Binding Count}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- handle details -->
+                <Border Grid.Row="2" Padding="16,10" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource SukiBorderBrush}"
+                        IsVisible="{Binding ShowHandleDetails}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="句柄详情" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                        <TextBlock Text="{Binding HandleDetailsSummary}" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+                <DataGrid
+                    Grid.Row="3"
+                    ItemsSource="{Binding HandleDetails}"
+                    SelectedItem="{Binding SelectedHandle, Mode=TwoWay}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    GridLinesVisibility="Horizontal"
+                    CanUserResizeColumns="True"
+                    CanUserSortColumns="True"
+                    SelectionMode="Single"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    MaxHeight="300"
+                    IsVisible="{Binding ShowHandleDetails}">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                            <MenuItem Header="关闭句柄" Command="{Binding CloseSelectedHandleCommand}" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="句柄" Binding="{Binding HandleHex}" Width="100" />
+                        <DataGridTextColumn Header="类型" Binding="{Binding TypeName}" Width="120" />
+                        <DataGridTextColumn Header="名称" Binding="{Binding ObjectName}" Width="*" />
+                        <DataGridTextColumn Header="权限" Binding="{Binding GrantedAccessHex}" Width="120" />
+                        <DataGridTextColumn Header="对象地址" Binding="{Binding ObjectAddressHex}" Width="180" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
