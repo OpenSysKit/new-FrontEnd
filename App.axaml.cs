@@ -56,15 +56,13 @@ public partial class App : Application
     }
 }
 
-internal static partial class TrayBalloonHelper
+internal static class TrayBalloonHelper
 {
     private const int NIF_INFO = 0x00000010;
-    private const int NIF_ICON = 0x00000002;
     private const int NIF_TIP = 0x00000004;
     private const int NIF_MESSAGE = 0x00000001;
     private const int NIM_ADD = 0x00000000;
     private const int NIM_MODIFY = 0x00000001;
-    private const int NIM_DELETE = 0x00000002;
     private const int NIIF_INFO = 0x00000001;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -87,12 +85,12 @@ internal static partial class TrayBalloonHelper
         public int dwStateMask;
     }
 
-    [LibraryImport("shell32.dll", EntryPoint = "Shell_NotifyIconW")]
+    [DllImport("shell32.dll", EntryPoint = "Shell_NotifyIconW", CharSet = CharSet.Unicode)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool Shell_NotifyIcon(int dwMessage, ref NOTIFYICONDATA lpData);
+    private static extern bool Shell_NotifyIcon(int dwMessage, ref NOTIFYICONDATA lpData);
 
-    [LibraryImport("kernel32.dll", EntryPoint = "GetConsoleWindow")]
-    private static partial IntPtr GetConsoleWindow();
+    [DllImport("kernel32.dll", EntryPoint = "GetConsoleWindow")]
+    private static extern IntPtr GetConsoleWindow();
 
     private static bool _added;
 
