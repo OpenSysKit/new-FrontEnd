@@ -33,7 +33,6 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:DebugSymbols=false `
             -p:DebugType=None `
-            -p:CETCompat=false `
             -o publish
 
       - name: Install UPX
@@ -58,7 +57,7 @@ jobs:
       - name: Compress with UPX
         shell: pwsh
         run: |
-          upx --best --lzma "publish\OpenSysKit.UI.exe"
+          upx --best --lzma --force "publish\OpenSysKit.UI.exe"
 
       - name: Report post-UPX size
         shell: pwsh
