@@ -35,6 +35,36 @@ jobs:
             -p:DebugType=None `
             -o publish
 
+      - name: Sign frontend executable
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        env:
+          CODESIGN_PFX: ${{ secrets.CODESIGN_PFX }}
+          CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
+        run: |
+          if (-not $env:CODESIGN_PFX) { throw "CODESIGN_PFX 未设置，拒绝生成未签名前端产物" }
+          if (-not $env:CODESIGN_PASSWORD) { throw "CODESIGN_PASSWORD 未设置" }
+          $certPath = Join-Path $env:RUNNER_TEMP "codesign.pfx"
+          $b64 = $env:CODESIGN_PFX -replace '\s', ''
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($b64))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Recurse -Filter "signtool.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "x64" } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signtool) { throw "signtool.exe not found" }
+          & $signtool.FullName sign `
+            /fd SHA256 `
+            /f $certPath `
+            /p $env:CODESIGN_PASSWORD `
+            /tr http://timestamp.digicert.com `
+            /td SHA256 `
+            "publish\OpenSysKit.UI.exe"
+          if ($LASTEXITCODE -ne 0) { throw "前端签名失败" }
+          $sig = Get-AuthenticodeSignature "publish\OpenSysKit.UI.exe"
+          if (-not $sig.SignerCertificate) { throw "前端签名校验失败" }
+          Remove-Item $certPath -Force
+
       - name: Archive output
         shell: pwsh
         run: |
