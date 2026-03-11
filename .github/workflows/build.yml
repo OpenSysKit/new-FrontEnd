@@ -9,12 +9,8 @@ on:
 
 jobs:
   build:
-    name: Build WinUI 3
+    name: Build Avalonia win-x64
     runs-on: windows-latest
-    env:
-      Solution_Name: OpenSysKit.UI.csproj
-      Configuration: Release
-      Platform: x64
 
     steps:
       - name: Checkout
@@ -25,116 +21,72 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Restore
-        run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-
-      - name: Publish unpackaged app
-        id: publish
-        continue-on-error: true
+      - name: Publish single-file win-x64
         shell: pwsh
         run: |
-          msbuild $env:Solution_Name `
-            /t:Publish `
-            /p:Configuration=$env:Configuration `
-            /p:Platform=$env:Platform `
-            /p:WindowsPackageType=None `
-            /p:EnableMsixTooling=true `
-            /p:RuntimeIdentifierOverride=win-x64 `
-            /p:SelfContained=true `
-            /p:WindowsAppSDKSelfContained=true `
-            /p:PublishSingleFile=true `
-            /p:EnableCompressionInSingleFile=true `
-            /p:DebugSymbols=false `
-            /p:DebugType=None `
-            /bl:$env:RUNNER_TEMP\publish.binlog
+          dotnet publish OpenSysKit.UI.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugSymbols=false `
+            -p:DebugType=None `
+            -o publish
 
-      - name: Dump build diagnostics on failure
-        if: steps.publish.outcome == 'failure'
+      - name: Install UPX
         shell: pwsh
         run: |
-          Write-Host "Publish failed. Dumping likely XAML compiler artifacts..."
-          Get-ChildItem -Recurse obj\Release -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table -AutoSize
-          $outputJson = Get-ChildItem -Recurse obj\Release -Filter output.json -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($outputJson) {
-            Write-Host "==== Parsed output.json errors ===="
-            $content = Get-Content $outputJson.FullName -Raw | ConvertFrom-Json
-            $content.Errors | ConvertTo-Json -Depth 10
-          }
-          $inputJson = Get-ChildItem -Recurse obj\Release -Filter input.json -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($inputJson) {
-            Write-Host "==== Parsed input.json page map ===="
-            $content = Get-Content $inputJson.FullName -Raw | ConvertFrom-Json
-            $content.XamlPages | Select-Object ItemSpec, ClassFullName | ConvertTo-Json -Depth 5
-          }
+          $upxVersion = "4.2.4"
+          $url = "https://github.com/upx/upx/releases/download/v${upxVersion}/upx-${upxVersion}-win64.zip"
+          $zipPath = Join-Path $env:RUNNER_TEMP "upx.zip"
+          $extractPath = Join-Path $env:RUNNER_TEMP "upx"
+          Invoke-WebRequest -Uri $url -OutFile $zipPath
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+          $upxDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
+          Write-Host "UPX installed at: $($upxDir.FullName)"
+          echo "$($upxDir.FullName)" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Upload diagnostics on failure
-        if: steps.publish.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenSysKit-UI-build-diagnostics
-          path: |
-            ${{ runner.temp }}/publish.binlog
-            obj/Release
-          if-no-files-found: warn
-
-      - name: Fail when publish did not succeed
-        if: steps.publish.outcome == 'failure'
+      - name: Report pre-UPX size
         shell: pwsh
         run: |
-          throw "dotnet publish failed"
+          $exe = Get-Item "publish\OpenSysKit.UI.exe"
+          Write-Host ("Pre-UPX size: {0:N0} bytes ({1:N2} MB)" -f $exe.Length, ($exe.Length / 1MB))
 
-      - name: Report published sizes
-        if: steps.publish.outcome == 'success'
+      - name: Compress with UPX
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin" -Filter "OpenSysKit.UI.exe" -File -Recurse |
-            Select-Object -First 1
-          if (-not $exe) {
-            throw "Could not find OpenSysKit.UI.exe under bin"
-          }
-          $publishDir = Split-Path $exe.FullName -Parent
-          Write-Host ("Executable size: {0} bytes" -f $exe.Length)
-          Write-Host "Top published files by size:"
-          Get-ChildItem -Path $publishDir -File -Force |
-            Sort-Object Length -Descending |
-            Select-Object -First 15 Name, Length |
-            Format-Table -AutoSize
+          upx --best --lzma "publish\OpenSysKit.UI.exe"
+
+      - name: Report post-UPX size
+        shell: pwsh
+        run: |
+          $exe = Get-Item "publish\OpenSysKit.UI.exe"
+          Write-Host ("Post-UPX size: {0:N0} bytes ({1:N2} MB)" -f $exe.Length, ($exe.Length / 1MB))
 
       - name: Archive output
-        if: steps.publish.outcome == 'success'
         shell: pwsh
         run: |
-          $artifactsDir = Join-Path $env:GITHUB_WORKSPACE "artifacts"
+          $artifactsDir = "artifacts"
           New-Item -ItemType Directory -Path $artifactsDir -Force | Out-Null
-          $archiveBase = Join-Path $artifactsDir "OpenSysKit.UI-win-x64"
-          Get-ChildItem -Path $artifactsDir -Filter "OpenSysKit.UI-win-x64.*" -ErrorAction SilentlyContinue |
-            Remove-Item -Force
-          $exe = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\bin" -Filter "OpenSysKit.UI.exe" -File -Recurse |
-            Select-Object -First 1
-          if (-not $exe) {
-            throw "Could not find OpenSysKit.UI.exe under bin"
-          }
-          $publishDir = Split-Path $exe.FullName -Parent
-          $archiveItems = Get-ChildItem -Path $publishDir -Force |
-            Where-Object { $_.Extension -ne '.pdb' } |
-            Select-Object -ExpandProperty FullName
+          $archivePath = Join-Path $artifactsDir "OpenSysKit.UI-win-x64.7z"
           $sevenZip = Get-Command 7z -ErrorAction SilentlyContinue
           if ($sevenZip) {
-            Push-Location $publishDir
+            Push-Location publish
             try {
-              & $sevenZip.Source a -t7z "$archiveBase.7z" "*" "-xr!*.pdb" -mx=9 -mmt=on -ms=on
+              & $sevenZip.Source a -t7z "..\$archivePath" "*" "-xr!*.pdb" -mx=9 -mmt=on -ms=on
             } finally {
               Pop-Location
             }
           } else {
-            Compress-Archive -Path $archiveItems -DestinationPath "$archiveBase.zip" -CompressionLevel Optimal
+            $items = Get-ChildItem publish -Force |
+              Where-Object { $_.Extension -ne '.pdb' } |
+              Select-Object -ExpandProperty FullName
+            Compress-Archive -Path $items -DestinationPath (Join-Path $artifactsDir "OpenSysKit.UI-win-x64.zip") -CompressionLevel Optimal
           }
 
       - name: Upload artifact
-        if: steps.publish.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: OpenSysKit-UI-win-x64
