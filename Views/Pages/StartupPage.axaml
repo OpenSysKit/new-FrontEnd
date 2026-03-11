@@ -1,0 +1,47 @@
+<UserControl
+    x:Class="OpenSysKit.UI.Views.Pages.StartupPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI"
+    xmlns:vm="using:OpenSysKit.UI.ViewModels"
+    x:DataType="vm:MainViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <suki:GlassCard>
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="启动项" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding StartupSummary}" FontSize="13" Opacity="0.6" />
+                </StackPanel>
+                <TextBox
+                    Grid.Column="1"
+                    Text="{Binding SearchText, Mode=TwoWay}"
+                    Watermark="搜索启动项..."
+                    MinWidth="220"
+                    FontSize="12"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </suki:GlassCard>
+
+        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+            <DataGrid
+                ItemsSource="{Binding StartupEntries}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="Horizontal"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                Background="Transparent"
+                BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="100" />
+                    <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="180" />
+                    <DataGridTextColumn Header="显示名" Binding="{Binding DisplayName}" Width="*" />
+                    <DataGridTextColumn Header="状态" Binding="{Binding State}" Width="100" />
+                    <DataGridTextColumn Header="账户" Binding="{Binding RunAs}" Width="120" />
+                    <DataGridTextColumn Header="命令" Binding="{Binding Command}" Width="200" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </suki:GlassCard>
+    </Grid>
+</UserControl>

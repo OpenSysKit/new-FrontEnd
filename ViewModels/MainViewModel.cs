@@ -5,27 +5,25 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using OpenSysKit.UI.Models;
 using OpenSysKit.UI.Services;
 
 namespace OpenSysKit.UI.ViewModels;
 
-public enum NavPage { Processes, Network, Services, Files, KernelModules, Handles, Startup, Audit }
+public enum NavPage { Processes, Network, Services, Files, KernelModules, Startup, Audit }
 
 public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly RpcClient _rpc = new();
-    private readonly DispatcherQueue _dispatcherQueue;
     private CancellationTokenSource? _refreshCts;
     private bool _isConnecting;
+    private bool _isRefreshing;
 
-    public MainViewModel(DispatcherQueue dispatcherQueue)
+    public MainViewModel()
     {
-        _dispatcherQueue = dispatcherQueue;
     }
 
     [ObservableProperty] private bool _isConnected;
@@ -37,6 +35,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _parentPath = "";
     [ObservableProperty] private string _overallHealth = "—";
     [ObservableProperty] private bool _showDetailPanel;
+    [ObservableProperty] private bool _showHandlesPanel;
+    [ObservableProperty] private string _searchText = "";
 
     public ObservableCollection<ProcessInfo> Processes { get; } = [];
     public ObservableCollection<NetworkConnection> Connections { get; } = [];
@@ -50,6 +50,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<ModuleInfo> ProcessModules { get; } = [];
     public ObservableCollection<ThreadInfo> ProcessThreads { get; } = [];
 
+    private List<ProcessInfo> _allProcesses = [];
+    private List<NetworkConnection> _allConnections = [];
+    private List<ServiceInfo> _allServices = [];
+    private List<KernelModule> _allKernelModules = [];
+    private List<StartupEntry> _allStartupEntries = [];
+
     [ObservableProperty] private ProcessInfo? _selectedProcess;
     [ObservableProperty] private NetworkConnection? _selectedConnection;
     [ObservableProperty] private ServiceInfo? _selectedService;
@@ -62,7 +68,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         NavPage.Services => "服务",
         NavPage.Files => "文件",
         NavPage.KernelModules => "内核模块",
-        NavPage.Handles => "句柄",
         NavPage.Startup => "启动项",
         NavPage.Audit => "审计日志",
         _ => "OpenSysKit"
@@ -75,7 +80,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         NavPage.Services => "面向运维操作的服务状态与启停控制台。",
         NavPage.Files => "像 Explorer 一样直接进入目录并查看选中项信息。",
         NavPage.KernelModules => "快速查看已加载驱动与模块映射。",
-        NavPage.Handles => "切页即载入当前目标进程的句柄类型统计。",
         NavPage.Startup => "统一审视开机项与其触发来源。",
         NavPage.Audit => "用时间序列方式浏览近期审计事件。",
         _ => ""
@@ -102,11 +106,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string SelectedFileDisplay => SelectedFile == null ? "未选择项目" : SelectedFile.Name;
     public string SelectedFileKind => SelectedFile == null ? "—" : SelectedFile.KindLabel;
     public string SelectedFilePath => SelectedFile == null ? "—" : SelectedFile.Path;
-    public Visibility DetailPanelVisibility => ShowDetailPanel ? Visibility.Visible : Visibility.Collapsed;
     public string AutoRefreshDisplay => IsConnected ? "自动刷新已开启" : "等待后端";
     public string CurrentSelectionDisplay => CurrentPage switch
     {
-        NavPage.Processes or NavPage.Handles => SelectedProcessDisplay,
+        NavPage.Processes => SelectedProcessDisplay,
         NavPage.Network => SelectedConnectionDisplay,
         NavPage.Services => SelectedServiceDisplay,
         NavPage.Files => SelectedFileDisplay,
@@ -118,6 +121,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(CurrentPageTitle));
         OnPropertyChanged(nameof(CurrentPageSubtitle));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
+        SearchText = "";
     }
 
     partial void OnIsConnectedChanged(bool value)
@@ -127,39 +131,48 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     partial void OnSelectedProcessChanged(ProcessInfo? value)
     {
+        if (_isRefreshing) return;
         OnPropertyChanged(nameof(SelectedProcessDisplay));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
-
-        if (CurrentPage == NavPage.Handles && IsConnected)
-        {
-            _ = LoadHandlesAsync();
-        }
     }
 
     partial void OnSelectedConnectionChanged(NetworkConnection? value)
     {
+        if (_isRefreshing) return;
         OnPropertyChanged(nameof(SelectedConnectionDisplay));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
     partial void OnSelectedServiceChanged(ServiceInfo? value)
     {
+        if (_isRefreshing) return;
         OnPropertyChanged(nameof(SelectedServiceDisplay));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
     partial void OnSelectedFileChanged(FileEntry? value)
     {
+        if (_isRefreshing) return;
         OnPropertyChanged(nameof(SelectedFileDisplay));
         OnPropertyChanged(nameof(SelectedFileKind));
         OnPropertyChanged(nameof(SelectedFilePath));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
-    partial void OnShowDetailPanelChanged(bool value)
+    partial void OnNetProtocolChanged(string value)
     {
-        OnPropertyChanged(nameof(DetailPanelVisibility));
+        if (IsConnected && CurrentPage == NavPage.Network)
+        {
+            _ = LoadNetworkAsync();
+        }
     }
+
+    partial void OnSearchTextChanged(string value)
+    {
+        ApplySearchFilter();
+    }
+
+    // ── Connection ──────────────────────────────────────────────
 
     public async Task EnsureConnectedAsync()
     {
@@ -203,21 +216,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── Navigation ──────────────────────────────────────────────
+
     [RelayCommand]
     private async Task NavigateAsync(NavPage page)
     {
+        if (CurrentPage == page) return;
         CurrentPage = page;
         ShowDetailPanel = false;
+        ShowHandlesPanel = false;
 
-        if (IsConnected)
-        {
-            await LoadCurrentPageAsync();
-        }
-    }
-
-    [RelayCommand]
-    private async Task RefreshAsync()
-    {
         if (IsConnected)
         {
             await LoadCurrentPageAsync();
@@ -258,6 +266,223 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── Process operations ──────────────────────────────────────
+
+    [RelayCommand]
+    private async Task KillProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.KillProcess", new { process_id = SelectedProcess.ProcessId });
+            var success = result?["success"]?.GetValue<bool>() == true;
+            var method = result?["used_method"]?.GetValue<string>() ?? "";
+            StatusMessage = success
+                ? $"已终止 {SelectedProcess.ImageName} (PID {SelectedProcess.ProcessId}) [{method}]"
+                : $"终止未成功 (PID {SelectedProcess.ProcessId}) [{method}] NT={result?["nt_status"]}";
+        }
+        catch (RpcException ex) when (ex.Message.Contains("驱动未加载"))
+        {
+            StatusMessage = "终止失败: 内核驱动未加载，请先启动驱动";
+        }
+        catch (RpcException ex) when (ex.Message.Contains("can't find"))
+        {
+            StatusMessage = "终止失败: 后端未提供此方法，请更新后端";
+        }
+        catch (Exception ex) { StatusMessage = $"终止失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task KillProcessTreeAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.KillProcessTree", new
+            {
+                process_id = SelectedProcess.ProcessId,
+                include_root = true,
+                leaves_first = true,
+                strict_errors = false
+            });
+            var results = result?["results"]?.AsArray();
+            var successCount = results?.Count(n => n?["success"]?.GetValue<bool>() == true) ?? 0;
+            StatusMessage = $"进程树: 成功结束 {successCount} 个";
+        }
+        catch (Exception ex) { StatusMessage = $"结束进程树失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task TaskKillProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.TaskKillProcess", new
+            {
+                process_id = SelectedProcess.ProcessId,
+                tree = false
+            });
+            var output = result?["output"]?.GetValue<string>() ?? "";
+            var success = result?["success"]?.GetValue<bool>() == true;
+            StatusMessage = success
+                ? $"普通结束: {SelectedProcess.ImageName} {output}".Trim()
+                : $"普通结束未成功: {SelectedProcess.ImageName} {output}".Trim();
+        }
+        catch (RpcException ex) when (ex.Message.Contains("can't find"))
+        {
+            StatusMessage = $"普通结束失败: 后端未提供此方法，请更新后端版本";
+        }
+        catch (Exception ex) { StatusMessage = $"普通结束失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task FreezeProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.FreezeProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已冻结 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"冻结失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task UnfreezeProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.UnfreezeProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已解冻 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"解冻失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task ProtectProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.ProtectProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已保护 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"保护失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task UnprotectProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.UnprotectProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已取消保护 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"取消保护失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task HideProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.HideProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已隐藏 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"隐藏失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task UnhideProcessAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.UnhideProcess", new { process_id = SelectedProcess.ProcessId });
+            StatusMessage = $"已取消隐藏 PID {SelectedProcess.ProcessId}";
+        }
+        catch (Exception ex) { StatusMessage = $"取消隐藏失败: {ex.Message}"; }
+    }
+
+    // ── Process detail ──────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ViewModulesAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.EnumProcessModules", new { process_id = SelectedProcess.ProcessId });
+            if (result == null) return;
+
+            var modules = result["modules"]?.Deserialize<List<ModuleInfo>>(JsonOptions) ?? [];
+            ReplaceCollection(ProcessModules, modules);
+            ShowDetailPanel = true;
+            StatusMessage = $"模块: {modules.Count} 个";
+        }
+        catch (Exception ex) { StatusMessage = $"枚举模块失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task ViewThreadsAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            var result = await _rpc.CallAsync("Toolkit.EnumThreads", new { process_id = SelectedProcess.ProcessId });
+            if (result == null) return;
+
+            var threads = result["threads"]?.Deserialize<List<ThreadInfo>>(JsonOptions) ?? [];
+            ReplaceCollection(ProcessThreads, threads);
+            ShowDetailPanel = true;
+            StatusMessage = $"线程: {threads.Count} 个";
+        }
+        catch (Exception ex) { StatusMessage = $"枚举线程失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task ViewHandlesAsync()
+    {
+        if (SelectedProcess == null) return;
+        try
+        {
+            await LoadHandlesAsync();
+            ShowHandlesPanel = true;
+            ShowDetailPanel = false;
+        }
+        catch (Exception ex) { StatusMessage = $"枚举句柄失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task SuspendThreadAsync(uint? threadId)
+    {
+        if (threadId is null or 0) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.SuspendThread", new { thread_id = threadId.Value });
+            StatusMessage = $"已挂起线程 {threadId}";
+        }
+        catch (Exception ex) { StatusMessage = $"挂起失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task ResumeThreadAsync(uint? threadId)
+    {
+        if (threadId is null or 0) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.ResumeThread", new { thread_id = threadId.Value });
+            StatusMessage = $"已恢复线程 {threadId}";
+        }
+        catch (Exception ex) { StatusMessage = $"恢复失败: {ex.Message}"; }
+    }
+
+    // ── Handles ─────────────────────────────────────────────────
+
     [RelayCommand]
     private async Task LoadHandlesAsync()
     {
@@ -269,10 +494,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var result = await _rpc.CallAsync("Toolkit.EnumHandles", new { process_id = SelectedProcess.ProcessId });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
         var types = result["types"]?.Deserialize<List<HandleTypeInfo>>(JsonOptions) ?? [];
         ReplaceCollection(HandleTypes, types);
@@ -280,215 +502,63 @@ public partial class MainViewModel : ObservableObject, IDisposable
         StatusMessage = $"句柄: {SelectedProcess.ImageName} 共 {types.Sum(item => item.Count)} 个";
     }
 
-    [RelayCommand]
-    private async Task KillProcessAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await _rpc.CallAsync("Toolkit.KillProcess", new { process_id = SelectedProcess.ProcessId });
-            StatusMessage = $"已终止进程 {SelectedProcess.ImageName} (PID {SelectedProcess.ProcessId})";
-            await LoadProcessesAsync();
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"终止失败: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private async Task TaskKillProcessAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        try
-        {
-            var result = await _rpc.CallAsync("Toolkit.TaskKillProcess", new
-            {
-                process_id = SelectedProcess.ProcessId,
-                tree = false
-            });
-            StatusMessage = $"普通结束: {SelectedProcess.ImageName} {result?["output"]?.GetValue<string>()}".Trim();
-            await LoadProcessesAsync();
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"普通结束失败: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private async Task ProtectProcessAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await _rpc.CallAsync("Toolkit.ProtectProcess", new { process_id = SelectedProcess.ProcessId });
-            StatusMessage = $"已保护进程 PID {SelectedProcess.ProcessId}";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"保护失败: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private async Task FreezeProcessAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await _rpc.CallAsync("Toolkit.FreezeProcess", new { process_id = SelectedProcess.ProcessId });
-            StatusMessage = $"已冻结进程 PID {SelectedProcess.ProcessId}";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"冻结失败: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private async Task UnfreezeProcessAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await _rpc.CallAsync("Toolkit.UnfreezeProcess", new { process_id = SelectedProcess.ProcessId });
-            StatusMessage = $"已解冻进程 PID {SelectedProcess.ProcessId}";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"解冻失败: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private async Task ViewModulesAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        var result = await _rpc.CallAsync("Toolkit.EnumProcessModules", new { process_id = SelectedProcess.ProcessId });
-        if (result == null)
-        {
-            return;
-        }
-
-        var modules = result["modules"]?.Deserialize<List<ModuleInfo>>(JsonOptions) ?? [];
-        ReplaceCollection(ProcessModules, modules);
-        ShowDetailPanel = true;
-        StatusMessage = $"模块: {modules.Count} 个";
-    }
-
-    [RelayCommand]
-    private async Task ViewThreadsAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            return;
-        }
-
-        var result = await _rpc.CallAsync("Toolkit.EnumThreads", new { process_id = SelectedProcess.ProcessId });
-        if (result == null)
-        {
-            return;
-        }
-
-        var threads = result["threads"]?.Deserialize<List<ThreadInfo>>(JsonOptions) ?? [];
-        ReplaceCollection(ProcessThreads, threads);
-        ShowDetailPanel = true;
-        StatusMessage = $"线程: {threads.Count} 个";
-    }
+    // ── Service operations ──────────────────────────────────────
 
     [RelayCommand]
     private async Task StartServiceAsync()
     {
-        if (SelectedService == null)
-        {
-            return;
-        }
-
+        if (SelectedService == null) return;
         try
         {
             await _rpc.CallAsync("Toolkit.StartService", new { name = SelectedService.Name });
             StatusMessage = $"服务 {SelectedService.Name} 已启动";
-            await LoadServicesAsync();
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"启动失败: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"启动失败: {ex.Message}"; }
     }
 
     [RelayCommand]
     private async Task StopServiceAsync()
     {
-        if (SelectedService == null)
-        {
-            return;
-        }
-
+        if (SelectedService == null) return;
         try
         {
             await _rpc.CallAsync("Toolkit.StopService", new { name = SelectedService.Name });
             StatusMessage = $"服务 {SelectedService.Name} 已停止";
-            await LoadServicesAsync();
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"停止失败: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"停止失败: {ex.Message}"; }
     }
+
+    [RelayCommand]
+    private async Task SetServiceStartTypeAsync(string? startType)
+    {
+        if (SelectedService == null || string.IsNullOrEmpty(startType)) return;
+        try
+        {
+            await _rpc.CallAsync("Toolkit.SetServiceStartType", new { name = SelectedService.Name, start_type = startType });
+            StatusMessage = $"服务 {SelectedService.Name} 启动类型已设为 {startType}";
+        }
+        catch (Exception ex) { StatusMessage = $"修改失败: {ex.Message}"; }
+    }
+
+    // ── File operations ─────────────────────────────────────────
 
     [RelayCommand]
     private async Task DeleteFileAsync()
     {
-        if (SelectedFile == null || SelectedFile.IsDir)
-        {
-            return;
-        }
-
+        if (SelectedFile == null || SelectedFile.IsDir) return;
         try
         {
             await _rpc.CallAsync("Toolkit.DeleteFileKernel", new { path = SelectedFile.Path });
             StatusMessage = $"已删除 {SelectedFile.Name}";
             await LoadFilesAsync();
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"删除失败: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"删除失败: {ex.Message}"; }
     }
 
     [RelayCommand]
     private async Task KillLockingProcessesAsync()
     {
-        if (SelectedFile == null || SelectedFile.IsDir)
-        {
-            return;
-        }
-
+        if (SelectedFile == null || SelectedFile.IsDir) return;
         try
         {
             var result = await _rpc.CallAsync("Toolkit.KillFileLockingProcesses", new { path = SelectedFile.Path });
@@ -496,11 +566,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var successCount = results?.Count(node => node?["success"]?.GetValue<bool>() == true) ?? 0;
             StatusMessage = $"已处理占用进程 {successCount} 个";
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"处理占用失败: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"处理占用失败: {ex.Message}"; }
     }
+
+    // ── Report ──────────────────────────────────────────────────
 
     [RelayCommand]
     private async Task ExportReportAsync()
@@ -513,18 +582,80 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 include_audit = true,
                 audit_limit = 200
             });
-
             StatusMessage = $"报告已导出: {result?["path"]?.GetValue<string>()}";
         }
-        catch (Exception ex)
-        {
-            StatusMessage = $"导出失败: {ex.Message}";
-        }
+        catch (Exception ex) { StatusMessage = $"导出失败: {ex.Message}"; }
     }
+
+    // ── Search filter ───────────────────────────────────────────
+
+    private void ApplySearchFilter()
+    {
+        var q = SearchText?.Trim() ?? "";
+        _isRefreshing = true;
+        try
+        {
+            switch (CurrentPage)
+            {
+                case NavPage.Processes:
+                    var fp = string.IsNullOrEmpty(q)
+                        ? _allProcesses
+                        : _allProcesses.Where(p =>
+                            p.ImageName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            p.ProcessId.ToString().Contains(q)).ToList();
+                    ReplaceCollection(Processes, fp);
+                    OnPropertyChanged(nameof(ProcessesSummary));
+                    break;
+                case NavPage.Network:
+                    var fn = string.IsNullOrEmpty(q)
+                        ? _allConnections
+                        : _allConnections.Where(c =>
+                            c.ProcessName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            c.LocalEndpoint.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            c.RemoteEndpoint.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            c.ProcessId.ToString().Contains(q)).ToList();
+                    ReplaceCollection(Connections, fn);
+                    OnPropertyChanged(nameof(ConnectionsSummary));
+                    break;
+                case NavPage.Services:
+                    var fs = string.IsNullOrEmpty(q)
+                        ? _allServices
+                        : _allServices.Where(s =>
+                            s.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            s.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+                    ReplaceCollection(Services, fs);
+                    OnPropertyChanged(nameof(ServicesSummary));
+                    break;
+                case NavPage.KernelModules:
+                    var fk = string.IsNullOrEmpty(q)
+                        ? _allKernelModules
+                        : _allKernelModules.Where(m =>
+                            m.ModuleName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            m.Path.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+                    ReplaceCollection(KernelModules, fk);
+                    OnPropertyChanged(nameof(KernelModulesSummary));
+                    break;
+                case NavPage.Startup:
+                    var fst = string.IsNullOrEmpty(q)
+                        ? _allStartupEntries
+                        : _allStartupEntries.Where(e =>
+                            e.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            e.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                            e.Command.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+                    ReplaceCollection(StartupEntries, fst);
+                    OnPropertyChanged(nameof(StartupSummary));
+                    break;
+            }
+        }
+        finally { _isRefreshing = false; }
+    }
+
+    // ── Data loading ────────────────────────────────────────────
 
     private async Task LoadCurrentPageAsync()
     {
         IsLoading = true;
+        _isRefreshing = true;
 
         try
         {
@@ -545,9 +676,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 case NavPage.KernelModules:
                     await LoadKernelModulesAsync();
                     break;
-                case NavPage.Handles:
-                    await EnsureHandlesAsync();
-                    break;
                 case NavPage.Startup:
                     await LoadStartupAsync();
                     break;
@@ -561,83 +689,85 @@ public partial class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             StatusMessage = $"错误: {ex.Message}";
+            IsConnected = _rpc.IsConnected;
         }
         finally
         {
+            _isRefreshing = false;
             IsLoading = false;
         }
-    }
-
-    private async Task EnsureHandlesAsync()
-    {
-        if (SelectedProcess == null)
-        {
-            if (Processes.Count == 0)
-            {
-                await LoadProcessesAsync();
-            }
-
-            SelectedProcess = Processes.FirstOrDefault();
-        }
-
-        await LoadHandlesAsync();
     }
 
     private async Task LoadProcessesAsync()
     {
         var selectedPid = SelectedProcess?.ProcessId;
         var result = await _rpc.CallAsync("Toolkit.EnumProcesses");
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
-        var processes = result["processes"]?.Deserialize<List<ProcessInfo>>(JsonOptions) ?? [];
-        ReplaceCollection(Processes, processes);
+        _allProcesses = result["processes"]?.Deserialize<List<ProcessInfo>>(JsonOptions) ?? [];
+
+        var q = SearchText?.Trim() ?? "";
+        var filtered = string.IsNullOrEmpty(q)
+            ? _allProcesses
+            : _allProcesses.Where(p =>
+                p.ImageName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.ProcessId.ToString().Contains(q)).ToList();
+
+        ReplaceCollection(Processes, filtered);
+
         SelectedProcess = selectedPid == null
-            ? Processes.FirstOrDefault()
+            ? null
             : Processes.FirstOrDefault(item => item.ProcessId == selectedPid);
 
         OnPropertyChanged(nameof(ProcessesSummary));
-        StatusMessage = $"进程: {processes.Count} 个";
+        StatusMessage = $"进程: {_allProcesses.Count} 个";
     }
 
     private async Task LoadNetworkAsync()
     {
         var result = await _rpc.CallAsync("Toolkit.EnumNetworkConnections", new { protocol = NetProtocol });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
-        var connections = result["connections"]?.Deserialize<List<NetworkConnection>>(JsonOptions) ?? [];
-        ReplaceCollection(Connections, connections);
+        _allConnections = result["connections"]?.Deserialize<List<NetworkConnection>>(JsonOptions) ?? [];
+
+        var q = SearchText?.Trim() ?? "";
+        var filtered = string.IsNullOrEmpty(q)
+            ? _allConnections
+            : _allConnections.Where(c =>
+                c.ProcessName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                c.LocalEndpoint.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                c.RemoteEndpoint.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                c.ProcessId.ToString().Contains(q)).ToList();
+
+        ReplaceCollection(Connections, filtered);
         OnPropertyChanged(nameof(ConnectionsSummary));
-        StatusMessage = $"网络: {connections.Count} 条连接";
+        StatusMessage = $"网络: {_allConnections.Count} 条连接";
     }
 
     private async Task LoadServicesAsync()
     {
         var result = await _rpc.CallAsync("Toolkit.ListServices", new { name_like = "" });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
-        var services = result["services"]?.Deserialize<List<ServiceInfo>>(JsonOptions) ?? [];
-        ReplaceCollection(Services, services);
+        _allServices = result["services"]?.Deserialize<List<ServiceInfo>>(JsonOptions) ?? [];
+
+        var q = SearchText?.Trim() ?? "";
+        var filtered = string.IsNullOrEmpty(q)
+            ? _allServices
+            : _allServices.Where(s =>
+                s.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                s.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        ReplaceCollection(Services, filtered);
         OnPropertyChanged(nameof(ServicesSummary));
-        StatusMessage = $"服务: {services.Count} 个";
+        StatusMessage = $"服务: {_allServices.Count} 个";
     }
 
     private async Task LoadFilesAsync()
     {
         var selectedPath = SelectedFile?.Path;
         var result = await _rpc.CallAsync("Toolkit.ListDirectory", new { path = CurrentPath });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
         CurrentPath = result["current_path"]?.GetValue<string>() ?? CurrentPath;
         ParentPath = result["parent_path"]?.GetValue<string>() ?? "";
@@ -654,38 +784,46 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private async Task LoadKernelModulesAsync()
     {
         var result = await _rpc.CallAsync("Toolkit.EnumKernelModules");
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
-        var modules = result["modules"]?.Deserialize<List<KernelModule>>(JsonOptions) ?? [];
-        ReplaceCollection(KernelModules, modules);
+        _allKernelModules = result["modules"]?.Deserialize<List<KernelModule>>(JsonOptions) ?? [];
+
+        var q = SearchText?.Trim() ?? "";
+        var filtered = string.IsNullOrEmpty(q)
+            ? _allKernelModules
+            : _allKernelModules.Where(m =>
+                m.ModuleName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                m.Path.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        ReplaceCollection(KernelModules, filtered);
         OnPropertyChanged(nameof(KernelModulesSummary));
-        StatusMessage = $"内核模块: {modules.Count} 个";
+        StatusMessage = $"内核模块: {_allKernelModules.Count} 个";
     }
 
     private async Task LoadStartupAsync()
     {
         var result = await _rpc.CallAsync("Toolkit.ListStartupEntries", new { category = "all", name_like = "" });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
-        var entries = result["entries"]?.Deserialize<List<StartupEntry>>(JsonOptions) ?? [];
-        ReplaceCollection(StartupEntries, entries);
+        _allStartupEntries = result["entries"]?.Deserialize<List<StartupEntry>>(JsonOptions) ?? [];
+
+        var q = SearchText?.Trim() ?? "";
+        var filtered = string.IsNullOrEmpty(q)
+            ? _allStartupEntries
+            : _allStartupEntries.Where(e =>
+                e.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                e.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                e.Command.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        ReplaceCollection(StartupEntries, filtered);
         OnPropertyChanged(nameof(StartupSummary));
-        StatusMessage = $"启动项: {entries.Count} 个";
+        StatusMessage = $"启动项: {_allStartupEntries.Count} 个";
     }
 
     private async Task LoadAuditAsync()
     {
         var result = await _rpc.CallAsync("Toolkit.GetAuditLogs", new { limit = 200 });
-        if (result == null)
-        {
-            return;
-        }
+        if (result == null) return;
 
         var entries = result["entries"]?.Deserialize<List<AuditEntry>>(JsonOptions) ?? [];
         ReplaceCollection(AuditEntries, entries);
@@ -698,10 +836,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             var result = await _rpc.CallAsync("Toolkit.HealthCheck");
-            if (result == null)
-            {
-                return;
-            }
+            if (result == null) return;
 
             OverallHealth = result["overall_status"]?.GetValue<string>() ?? "—";
             var components = result["components"]?.Deserialize<List<HealthComponent>>(JsonOptions) ?? [];
@@ -711,6 +846,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
         }
     }
+
+    // ── Auto refresh with reconnect ─────────────────────────────
 
     private void StartAutoRefresh()
     {
@@ -723,21 +860,60 @@ public partial class MainViewModel : ObservableObject, IDisposable
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromSeconds(5), token);
+                if (token.IsCancellationRequested) break;
 
-                if (!token.IsCancellationRequested && IsConnected)
+                try
                 {
-                    _dispatcherQueue.TryEnqueue(async () => await LoadCurrentPageAsync());
+                    await Dispatcher.UIThread.InvokeAsync(async () =>
+                    {
+                        await LoadCurrentPageAsync();
+                        IsConnected = _rpc.IsConnected;
+                    }, DispatcherPriority.Background);
+                }
+                catch
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        IsConnected = false;
+                        StatusMessage = "连接已断开，正在重连...";
+                    });
+
+                    try
+                    {
+                        await _rpc.ConnectAsync();
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            IsConnected = true;
+                            StatusMessage = "已重新连接";
+                        });
+                    }
+                    catch
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            StatusMessage = "重连失败，稍后重试...";
+                        });
+                    }
                 }
             }
         }, token);
     }
 
-    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, IList<T> source)
     {
-        target.Clear();
-        foreach (var item in source)
+        while (target.Count > source.Count)
         {
-            target.Add(item);
+            target.RemoveAt(target.Count - 1);
+        }
+
+        for (int i = 0; i < target.Count; i++)
+        {
+            target[i] = source[i];
+        }
+
+        for (int i = target.Count; i < source.Count; i++)
+        {
+            target.Add(source[i]);
         }
     }
 

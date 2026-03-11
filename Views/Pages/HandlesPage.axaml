@@ -1,0 +1,61 @@
+<UserControl
+    x:Class="OpenSysKit.UI.Views.Pages.HandlesPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI"
+    xmlns:vm="using:OpenSysKit.UI.ViewModels"
+    x:DataType="vm:MainViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+        <!-- header -->
+        <suki:GlassCard>
+            <StackPanel Spacing="4">
+                <TextBlock Text="句柄统计" FontSize="16" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding HandlesSummary}" FontSize="13" Opacity="0.6" />
+            </StackPanel>
+        </suki:GlassCard>
+
+        <!-- stat cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="0,12,0,0">
+            <suki:GlassCard Margin="0,0,6,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="目标进程" FontSize="11" Opacity="0.5" />
+                    <TextBlock Text="{Binding SelectedProcessDisplay}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </suki:GlassCard>
+
+            <suki:GlassCard Grid.Column="1" Margin="6,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="类型数" FontSize="11" Opacity="0.5" />
+                    <TextBlock Text="{Binding HandleTypes.Count}" FontSize="26" FontWeight="Bold" />
+                </StackPanel>
+            </suki:GlassCard>
+
+            <suki:GlassCard Grid.Column="2" Margin="6,0,0,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="状态" FontSize="11" Opacity="0.5" />
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="14" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </suki:GlassCard>
+        </Grid>
+
+        <!-- data grid -->
+        <suki:GlassCard Grid.Row="2" Padding="0" Margin="0,12,0,0">
+            <DataGrid
+                ItemsSource="{Binding HandleTypes}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="Horizontal"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                Background="Transparent"
+                BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="类型索引" Binding="{Binding TypeIndex}" Width="120" />
+                    <DataGridTextColumn Header="类型名称" Binding="{Binding TypeName}" Width="*" />
+                    <DataGridTextColumn Header="句柄数量" Binding="{Binding Count}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </suki:GlassCard>
+    </Grid>
+</UserControl>

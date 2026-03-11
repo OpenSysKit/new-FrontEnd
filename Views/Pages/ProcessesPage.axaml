@@ -1,0 +1,164 @@
+<UserControl
+    x:Class="OpenSysKit.UI.Views.Pages.ProcessesPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI"
+    xmlns:vm="using:OpenSysKit.UI.ViewModels"
+    xmlns:models="using:OpenSysKit.UI.Models"
+    x:DataType="vm:MainViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16">
+        <!-- header -->
+        <suki:GlassCard>
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="进程" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ProcessesSummary}" FontSize="13" Opacity="0.6" />
+                </StackPanel>
+                <TextBox
+                    Grid.Column="1"
+                    Text="{Binding SearchText, Mode=TwoWay}"
+                    Watermark="搜索进程名或 PID..."
+                    MinWidth="220"
+                    FontSize="12"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </suki:GlassCard>
+
+        <!-- main datagrid -->
+        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+            <DataGrid
+                x:Name="ProcessesGrid"
+                ItemsSource="{Binding Processes}"
+                SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="Horizontal"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                SelectionMode="Single"
+                Background="Transparent"
+                BorderThickness="0">
+                <DataGrid.ContextMenu>
+                    <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                        <MenuItem Header="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
+                        <MenuItem Header="内核结束" Command="{Binding KillProcessCommand}" />
+                        <MenuItem Header="结束进程树" Command="{Binding KillProcessTreeCommand}" />
+                        <Separator />
+                        <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
+                        <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
+                        <Separator />
+                        <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
+                        <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
+                        <Separator />
+                        <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />
+                        <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
+                        <Separator />
+                        <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
+                        <MenuItem Header="查看线程" Command="{Binding ViewThreadsCommand}" />
+                        <MenuItem Header="查看句柄" Command="{Binding ViewHandlesCommand}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="80" />
+                    <DataGridTextColumn Header="进程名" Binding="{Binding ImageName}" Width="*" />
+                    <DataGridTextColumn Header="内存" Binding="{Binding WorkingSetDisplay}" Width="120" />
+                    <DataGridTextColumn Header="线程" Binding="{Binding ThreadCount}" Width="80" />
+                    <DataGridTextColumn Header="父 PID" Binding="{Binding ParentProcessId}" Width="90" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </suki:GlassCard>
+
+        <!-- detail panel: modules + threads -->
+        <suki:GlassCard
+            Grid.Row="2"
+            Padding="0"
+            Margin="0,12,0,0"
+            IsVisible="{Binding ShowDetailPanel}">
+            <Grid ColumnDefinitions="1.1*,0.9*">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Padding="16,10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
+                        <TextBlock Text="模块" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                    </Border>
+                    <DataGrid
+                        Grid.Row="1"
+                        ItemsSource="{Binding ProcessModules}"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        GridLinesVisibility="Horizontal"
+                        CanUserResizeColumns="True"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MaxHeight="220">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="模块名" Binding="{Binding ModuleName}" Width="*" />
+                            <DataGridTextColumn Header="基地址" Binding="{Binding BaseAddressHex}" Width="160" />
+                            <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <Grid Grid.Column="1" RowDefinitions="Auto,*">
+                    <Border Padding="16,10" BorderThickness="1,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
+                        <TextBlock Text="线程" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                    </Border>
+                    <DataGrid
+                        Grid.Row="1"
+                        ItemsSource="{Binding ProcessThreads}"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        GridLinesVisibility="Horizontal"
+                        CanUserResizeColumns="True"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MaxHeight="220">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                                <MenuItem Header="挂起线程" Command="{Binding SuspendThreadCommand}" CommandParameter="{Binding SelectedItem.ThreadId, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+                                <MenuItem Header="恢复线程" Command="{Binding ResumeThreadCommand}" CommandParameter="{Binding SelectedItem.ThreadId, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="线程 ID" Binding="{Binding ThreadId}" Width="90" />
+                            <DataGridTextColumn Header="优先级" Binding="{Binding BasePriority}" Width="80" />
+                            <DataGridTextColumn Header="起始地址" Binding="{Binding StartAddressHex}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Grid>
+        </suki:GlassCard>
+
+        <!-- handles panel -->
+        <suki:GlassCard
+            Grid.Row="3"
+            Padding="0"
+            Margin="0,12,0,0"
+            IsVisible="{Binding ShowHandlesPanel}">
+            <Grid RowDefinitions="Auto,*">
+                <Border Padding="16,10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="句柄" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                        <TextBlock Text="{Binding HandlesSummary}" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+                <DataGrid
+                    Grid.Row="1"
+                    ItemsSource="{Binding HandleTypes}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    GridLinesVisibility="Horizontal"
+                    CanUserResizeColumns="True"
+                    CanUserSortColumns="True"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    MaxHeight="260">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="类型索引" Binding="{Binding TypeIndex}" Width="120" />
+                        <DataGridTextColumn Header="类型名称" Binding="{Binding TypeName}" Width="*" />
+                        <DataGridTextColumn Header="句柄数量" Binding="{Binding Count}" Width="120" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </suki:GlassCard>
+    </Grid>
+</UserControl>

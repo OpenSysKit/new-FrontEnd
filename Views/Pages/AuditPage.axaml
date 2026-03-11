@@ -1,0 +1,36 @@
+<UserControl
+    x:Class="OpenSysKit.UI.Views.Pages.AuditPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI"
+    xmlns:vm="using:OpenSysKit.UI.ViewModels"
+    x:DataType="vm:MainViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <suki:GlassCard>
+            <StackPanel Spacing="4">
+                <TextBlock Text="审计日志" FontSize="16" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AuditSummary}" FontSize="13" Opacity="0.6" />
+            </StackPanel>
+        </suki:GlassCard>
+
+        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+            <DataGrid
+                ItemsSource="{Binding AuditEntries}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="Horizontal"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                Background="Transparent"
+                BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80" />
+                    <DataGridTextColumn Header="时间" Binding="{Binding Timestamp}" Width="220" />
+                    <DataGridTextColumn Header="操作" Binding="{Binding Action}" Width="*" />
+                    <DataGridTextColumn Header="成功" Binding="{Binding Success}" Width="80" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </suki:GlassCard>
+    </Grid>
+</UserControl>

@@ -1,0 +1,58 @@
+<Application
+    x:Class="OpenSysKit.UI.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI">
+    <Application.Resources>
+        <SolidColorBrush x:Key="SystemControlTransparentBrush" Color="Transparent" />
+    </Application.Resources>
+    <Application.Styles>
+        <suki:SukiTheme ThemeColor="Blue" />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+        <!-- ContextMenu: fast fade-in instead of default sluggish animation -->
+        <Style Selector="ContextMenu">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.1" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- MenuFlyoutPresenter (used by some SukiUI context menus) -->
+        <Style Selector="MenuFlyoutPresenter">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.1" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- Popup: snappy open/close -->
+        <Style Selector="Popup > Border">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.08" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- DataGrid row: lighter transitions for selection highlight -->
+        <Style Selector="DataGridRow">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.08" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- GlassCard: reduce transition overhead -->
+        <Style Selector="suki|GlassCard">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+    </Application.Styles>
+</Application>

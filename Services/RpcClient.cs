@@ -14,20 +14,28 @@ public class RpcException(string message) : Exception(message) { }
 public class RpcClient : IDisposable
 {
     private const string PipeName = "OpenSysKit";
+    private const int ConnectTimeoutMs = 5000;
+    private const int MaxReconnectAttempts = 3;
+
+    private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
     private NamedPipeClientStream? _pipe;
     private StreamReader? _reader;
     private StreamWriter? _writer;
     private readonly SemaphoreSlim _lock = new(1, 1);
-    private int _idCounter = 0;
+    private int _idCounter;
 
     public bool IsConnected => _pipe?.IsConnected == true;
 
-    public async Task ConnectAsync(int timeoutMs = 3000)
+    public async Task ConnectAsync(int timeoutMs = ConnectTimeoutMs)
     {
+        DisposePipe();
+
         _pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
         await _pipe.ConnectAsync(timeoutMs);
-        _reader = new StreamReader(_pipe, Encoding.UTF8, leaveOpen: true);
-        _writer = new StreamWriter(_pipe, Encoding.UTF8, leaveOpen: true) { AutoFlush = true };
+        _pipe.ReadMode = PipeTransmissionMode.Byte;
+        _reader = new StreamReader(_pipe, Utf8NoBom, detectEncodingFromByteOrderMarks: false, bufferSize: 4096, leaveOpen: true);
+        _writer = new StreamWriter(_pipe, Utf8NoBom, bufferSize: 4096, leaveOpen: true) { AutoFlush = false };
     }
 
     public async Task<JsonObject?> CallAsync(string method, object? param = null, CancellationToken ct = default)
@@ -35,29 +43,24 @@ public class RpcClient : IDisposable
         await _lock.WaitAsync(ct);
         try
         {
-            int id = Interlocked.Increment(ref _idCounter);
-            var req = new JsonObject
+            return await CallInternalAsync(method, param, ct);
+        }
+        catch (Exception ex) when (IsPipeBroken(ex))
+        {
+            for (int attempt = 1; attempt <= MaxReconnectAttempts; attempt++)
             {
-                ["id"] = id,
-                ["method"] = method,
-                ["params"] = JsonSerializer.SerializeToNode(param ?? new { })
-                    is JsonNode n ? new JsonArray(n) : new JsonArray(new JsonObject())
-            };
+                try
+                {
+                    await ConnectAsync();
+                    return await CallInternalAsync(method, param, ct);
+                }
+                catch (Exception retryEx) when (IsPipeBroken(retryEx) && attempt < MaxReconnectAttempts)
+                {
+                    await Task.Delay(500 * attempt, ct);
+                }
+            }
 
-            await _writer!.WriteLineAsync(req.ToJsonString());
-            await _writer.FlushAsync(ct);
-
-            string? line = await _reader!.ReadLineAsync(ct);
-            if (string.IsNullOrWhiteSpace(line))
-                throw new RpcException("Empty response from server");
-
-            var resp = JsonNode.Parse(line)?.AsObject()
-                ?? throw new RpcException("Invalid JSON response");
-
-            if (resp["error"] is JsonNode err && err.GetValueKind() == System.Text.Json.JsonValueKind.String)
-                throw new RpcException(err.GetValue<string>());
-
-            return resp["result"]?.AsObject();
+            throw new RpcException($"管道连接断开且重连失败: {ex.Message}");
         }
         finally
         {
@@ -65,10 +68,60 @@ public class RpcClient : IDisposable
         }
     }
 
+    private async Task<JsonObject?> CallInternalAsync(string method, object? param, CancellationToken ct)
+    {
+        if (_writer == null || _reader == null || _pipe?.IsConnected != true)
+        {
+            throw new IOException("Pipe not connected");
+        }
+
+        int id = Interlocked.Increment(ref _idCounter);
+
+        var paramsNode = JsonSerializer.SerializeToNode(param ?? new { });
+        var req = new JsonObject
+        {
+            ["id"] = id,
+            ["method"] = method,
+            ["params"] = new JsonArray(paramsNode?.DeepClone() ?? new JsonObject())
+        };
+
+        var json = req.ToJsonString();
+        await _writer.WriteLineAsync(json.AsMemory(), ct);
+        await _writer.FlushAsync(ct);
+
+        string? line = await _reader.ReadLineAsync(ct);
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            throw new IOException("Pipe returned empty response (server may have closed connection)");
+        }
+
+        var resp = JsonNode.Parse(line)?.AsObject()
+            ?? throw new RpcException("Invalid JSON response");
+
+        if (resp["error"] is JsonNode err && err.GetValueKind() == JsonValueKind.String)
+        {
+            throw new RpcException(err.GetValue<string>());
+        }
+
+        return resp["result"]?.AsObject();
+    }
+
+    private static bool IsPipeBroken(Exception ex) =>
+        ex is IOException or ObjectDisposedException or InvalidOperationException;
+
+    private void DisposePipe()
+    {
+        try { _writer?.Dispose(); } catch { }
+        try { _reader?.Dispose(); } catch { }
+        try { _pipe?.Dispose(); } catch { }
+        _writer = null;
+        _reader = null;
+        _pipe = null;
+    }
+
     public void Dispose()
     {
-        _writer?.Dispose();
-        _reader?.Dispose();
-        _pipe?.Dispose();
+        DisposePipe();
+        _lock.Dispose();
     }
 }

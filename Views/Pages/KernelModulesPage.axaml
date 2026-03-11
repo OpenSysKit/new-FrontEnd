@@ -1,0 +1,45 @@
+<UserControl
+    x:Class="OpenSysKit.UI.Views.Pages.KernelModulesPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:suki="https://github.com/kikipoulet/SukiUI"
+    xmlns:vm="using:OpenSysKit.UI.ViewModels"
+    x:DataType="vm:MainViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <suki:GlassCard>
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="内核模块" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding KernelModulesSummary}" FontSize="13" Opacity="0.6" />
+                </StackPanel>
+                <TextBox
+                    Grid.Column="1"
+                    Text="{Binding SearchText, Mode=TwoWay}"
+                    Watermark="搜索模块名或路径..."
+                    MinWidth="220"
+                    FontSize="12"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </suki:GlassCard>
+
+        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+            <DataGrid
+                ItemsSource="{Binding KernelModules}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="Horizontal"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                Background="Transparent"
+                BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="模块名" Binding="{Binding ModuleName}" Width="200" />
+                    <DataGridTextColumn Header="基地址" Binding="{Binding BaseAddressHex}" Width="180" />
+                    <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="100" />
+                    <DataGridTextColumn Header="路径" Binding="{Binding Path}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </suki:GlassCard>
+    </Grid>
+</UserControl>
