@@ -55,9 +55,11 @@
                         <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
                         <Separator />
                         <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
-                        <MenuItem Header="查看线程" Command="{Binding ViewThreadsCommand}" />
-                        <MenuItem Header="查看句柄统计" Command="{Binding ViewHandlesCommand}" />
-                        <MenuItem Header="查看句柄详情" Command="{Binding ViewHandleDetailsCommand}" />
+                        <!-- 临时移除未生效的右键功能：
+                             查看线程 / 查看句柄统计 / 查看句柄详情 -->
+                        <!-- <MenuItem Header="查看线程" Command="{Binding ViewThreadsCommand}" /> -->
+                        <!-- <MenuItem Header="查看句柄统计" Command="{Binding ViewHandlesCommand}" /> -->
+                        <!-- <MenuItem Header="查看句柄详情" Command="{Binding ViewHandleDetailsCommand}" /> -->
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
