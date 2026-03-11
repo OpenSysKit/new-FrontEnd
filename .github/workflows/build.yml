@@ -65,33 +65,6 @@ jobs:
           $exe = Get-Item "publish\OpenSysKit.UI.exe"
           Write-Host ("Post-UPX size: {0:N0} bytes ({1:N2} MB)" -f $exe.Length, ($exe.Length / 1MB))
 
-      - name: Decode signing certificate
-        shell: pwsh
-        run: |
-          [IO.File]::WriteAllBytes("cert.pfx", [Convert]::FromBase64String("${{ secrets.CODESIGN_PFX }}"))
-
-      - name: Sign executable
-        shell: pwsh
-        run: |
-          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
-            Sort-Object FullName -Descending | Select-Object -First 1
-          if (-not $signtool) { throw "signtool.exe not found" }
-          & $signtool.FullName sign /fd sha256 /f cert.pfx /p "${{ secrets.CODESIGN_PASSWORD }}" /tr http://timestamp.digicert.com /td sha256 "publish\OpenSysKit.UI.exe"
-          if ($LASTEXITCODE -ne 0) { throw "Code signing failed" }
-
-      - name: Verify signature
-        shell: pwsh
-        run: |
-          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
-            Sort-Object FullName -Descending | Select-Object -First 1
-          & $signtool.FullName verify /pa "publish\OpenSysKit.UI.exe"
-          if ($LASTEXITCODE -ne 0) { throw "Signature verification failed" }
-
-      - name: Cleanup certificate
-        if: always()
-        shell: pwsh
-        run: Remove-Item cert.pfx -Force -ErrorAction SilentlyContinue
-
       - name: Archive output
         shell: pwsh
         run: |
