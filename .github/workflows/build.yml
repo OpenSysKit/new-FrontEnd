@@ -33,6 +33,7 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:DebugSymbols=false `
             -p:DebugType=None `
+            -p:CETCompat=false `
             -o publish
 
       - name: Install UPX
@@ -70,25 +71,29 @@ jobs:
         run: |
           $artifactsDir = "artifacts"
           New-Item -ItemType Directory -Path $artifactsDir -Force | Out-Null
-          $archivePath = Join-Path $artifactsDir "OpenSysKit.UI-win-x64.7z"
-          $sevenZip = Get-Command 7z -ErrorAction SilentlyContinue
-          if ($sevenZip) {
-            Push-Location publish
-            try {
-              & $sevenZip.Source a -t7z "..\$archivePath" "*" "-xr!*.pdb" -mx=9 -mmt=on -ms=on
-            } finally {
-              Pop-Location
-            }
-          } else {
-            $items = Get-ChildItem publish -Force |
-              Where-Object { $_.Extension -ne '.pdb' } |
-              Select-Object -ExpandProperty FullName
-            Compress-Archive -Path $items -DestinationPath (Join-Path $artifactsDir "OpenSysKit.UI-win-x64.zip") -CompressionLevel Optimal
-          }
+          $items = Get-ChildItem publish -Force |
+            Where-Object { $_.Extension -ne '.pdb' } |
+            Select-Object -ExpandProperty FullName
+          Compress-Archive -Path $items -DestinationPath (Join-Path $artifactsDir "OpenSysKit.UI-win-x64.zip") -CompressionLevel Optimal
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenSysKit-UI-win-x64
-          path: artifacts/OpenSysKit.UI-win-x64.*
+          path: artifacts/OpenSysKit.UI-win-x64.zip
           if-no-files-found: error
+
+  trigger-backend:
+    name: Trigger backend bundle
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Dispatch backend workflow
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+        run: |
+          gh workflow run build.yml \
+            --repo OpenSysKit/BackEnd \
+            --ref main
