@@ -69,5 +69,17 @@
                 </Transitions>
             </Setter>
         </Style>
+
+        <!-- TreeView: compact rows for process tree -->
+        <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinHeight" Value="26" />
+        </Style>
+
+        <!-- TreeViewItem row: selection highlight transition -->
+        <Style Selector="TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
+            <Setter Property="Margin" Value="0" />
+        </Style>
     </Application.Styles>
 </Application>

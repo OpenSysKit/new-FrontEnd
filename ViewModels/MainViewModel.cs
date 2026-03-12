@@ -39,6 +39,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _searchText = "";
 
     public ObservableCollection<ProcessInfo> Processes { get; } = [];
+    public ObservableCollection<ProcessTreeNode> ProcessTree { get; } = [];
     public ObservableCollection<NetworkConnection> Connections { get; } = [];
     public ObservableCollection<ServiceInfo> Services { get; } = [];
     public ObservableCollection<FileEntry> FileEntries { get; } = [];
@@ -52,12 +53,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<HandleDetailInfo> HandleDetails { get; } = [];
 
     private List<ProcessInfo> _allProcesses = [];
+    private List<ProcessTreeNode> _allProcessTreeRoots = [];
+    private int _totalProcessCount;
     private List<NetworkConnection> _allConnections = [];
     private List<ServiceInfo> _allServices = [];
     private List<KernelModule> _allKernelModules = [];
     private List<StartupEntry> _allStartupEntries = [];
 
     [ObservableProperty] private ProcessInfo? _selectedProcess;
+    [ObservableProperty] private ProcessTreeNode? _selectedTreeNode;
     [ObservableProperty] private NetworkConnection? _selectedConnection;
     [ObservableProperty] private ServiceInfo? _selectedService;
     [ObservableProperty] private FileEntry? _selectedFile;
@@ -94,7 +98,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ? "未选择进程"
         : $"{SelectedProcess.ImageName} (PID {SelectedProcess.ProcessId})";
 
-    public string ProcessesSummary => $"当前共 {Processes.Count} 个进程";
+    public string ProcessesSummary => $"当前共 {_totalProcessCount} 个进程";
     public string ConnectionsSummary => $"当前共 {Connections.Count} 条连接";
     public string ServicesSummary => $"当前共 {Services.Count} 个服务";
     public string FilesSummary => $"当前目录共 {FileEntries.Count} 项";
@@ -140,6 +144,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (_isRefreshing) return;
         OnPropertyChanged(nameof(SelectedProcessDisplay));
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
+    }
+
+    partial void OnSelectedTreeNodeChanged(ProcessTreeNode? value)
+    {
+        if (_isRefreshing) return;
+        SelectedProcess = value;
     }
 
     partial void OnSelectedConnectionChanged(NetworkConnection? value)
@@ -702,11 +712,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             {
                 case NavPage.Processes:
                     var fp = string.IsNullOrEmpty(q)
-                        ? _allProcesses
-                        : _allProcesses.Where(p =>
-                            p.ImageName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                            p.ProcessId.ToString().Contains(q)).ToList();
-                    ReplaceCollection(Processes, fp);
+                        ? _allProcessTreeRoots
+                        : FilterProcessTree(_allProcessTreeRoots, q);
+                    ReplaceCollection(ProcessTree, fp);
                     OnPropertyChanged(nameof(ProcessesSummary));
                     break;
                 case NavPage.Network:
@@ -804,26 +812,75 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private async Task LoadProcessesAsync()
     {
         var selectedPid = SelectedProcess?.ProcessId;
-        var result = await _rpc.CallAsync("Toolkit.EnumProcesses");
+
+        var result = await _rpc.CallAsync("Toolkit.GetProcessTree");
         if (result == null) return;
 
-        _allProcesses = result["processes"]?.Deserialize<List<ProcessInfo>>(JsonOptions) ?? [];
+        _totalProcessCount = result["total"]?.GetValue<int>() ?? 0;
+        _allProcessTreeRoots = result["roots"]?.Deserialize<List<ProcessTreeNode>>(JsonOptions) ?? [];
 
         var q = SearchText?.Trim() ?? "";
         var filtered = string.IsNullOrEmpty(q)
-            ? _allProcesses
-            : _allProcesses.Where(p =>
-                p.ImageName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.ProcessId.ToString().Contains(q)).ToList();
+            ? _allProcessTreeRoots
+            : FilterProcessTree(_allProcessTreeRoots, q);
 
-        ReplaceCollection(Processes, filtered);
+        ReplaceCollection(ProcessTree, filtered);
 
-        SelectedProcess = selectedPid == null
-            ? null
-            : Processes.FirstOrDefault(item => item.ProcessId == selectedPid);
+        if (selectedPid != null)
+            SelectedTreeNode = FindNodeByPid(ProcessTree, selectedPid.Value);
 
         OnPropertyChanged(nameof(ProcessesSummary));
-        StatusMessage = $"进程: {_allProcesses.Count} 个";
+        StatusMessage = $"进程: {_totalProcessCount} 个";
+    }
+
+    private static ProcessTreeNode? FindNodeByPid(IEnumerable<ProcessTreeNode> roots, uint pid)
+    {
+        foreach (var node in roots)
+        {
+            if (node.ProcessId == pid) return node;
+            var found = FindNodeByPid(node.Children, pid);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    private static List<ProcessTreeNode> FilterProcessTree(List<ProcessTreeNode> roots, string query)
+    {
+        var result = new List<ProcessTreeNode>();
+        foreach (var root in roots)
+        {
+            var filtered = FilterNode(root, query);
+            if (filtered != null)
+                result.Add(filtered);
+        }
+        return result;
+    }
+
+    private static ProcessTreeNode? FilterNode(ProcessTreeNode node, string query)
+    {
+        bool selfMatch = node.ImageName.Contains(query, StringComparison.OrdinalIgnoreCase)
+                         || node.ProcessId.ToString().Contains(query);
+
+        var filteredChildren = new ObservableCollection<ProcessTreeNode>();
+        foreach (var child in node.Children)
+        {
+            var fc = FilterNode(child, query);
+            if (fc != null) filteredChildren.Add(fc);
+        }
+
+        if (!selfMatch && filteredChildren.Count == 0)
+            return null;
+
+        return new ProcessTreeNode
+        {
+            ProcessId = node.ProcessId,
+            ParentProcessId = node.ParentProcessId,
+            ThreadCount = node.ThreadCount,
+            WorkingSetSize = node.WorkingSetSize,
+            ImageName = node.ImageName,
+            Children = filteredChildren,
+            IsExpanded = true
+        };
     }
 
     private async Task LoadNetworkAsync()

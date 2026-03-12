@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace OpenSysKit.UI.Models;
@@ -15,9 +18,24 @@ public class ProcessInfo
         : "—";
 }
 
-public class ProcessTreeNode : ProcessInfo
+public class ProcessTreeNode : ProcessInfo, INotifyPropertyChanged
 {
-    [JsonPropertyName("children")] public List<ProcessTreeNode> Children { get; set; } = [];
+    [JsonPropertyName("children")]
+    public ObservableCollection<ProcessTreeNode> Children { get; set; } = [];
+
+    private bool _isExpanded = true;
+
+    [JsonIgnore]
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set { if (_isExpanded != value) { _isExpanded = value; OnPropertyChanged(); } }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
 
 public class NetworkConnection

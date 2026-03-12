@@ -25,51 +25,66 @@
             </Grid>
         </suki:GlassCard>
 
-        <!-- main datagrid -->
+        <!-- main process tree -->
         <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
-            <DataGrid
-                x:Name="ProcessesGrid"
-                ItemsSource="{Binding Processes}"
-                SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
-                AutoGenerateColumns="False"
-                IsReadOnly="True"
-                GridLinesVisibility="Horizontal"
-                CanUserResizeColumns="True"
-                CanUserSortColumns="True"
-                SelectionMode="Single"
-                Background="Transparent"
-                BorderThickness="0">
-                <DataGrid.ContextMenu>
-                    <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
-                        <MenuItem Header="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
-                        <MenuItem Header="内核结束" Command="{Binding KillProcessCommand}" />
-                        <MenuItem Header="结束进程树" Command="{Binding KillProcessTreeCommand}" />
-                        <Separator />
-                        <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
-                        <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
-                        <Separator />
-                        <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
-                        <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
-                        <Separator />
-                        <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />
-                        <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
-                        <Separator />
-                        <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
-                        <!-- 临时移除未生效的右键功能：
-                             查看线程 / 查看句柄统计 / 查看句柄详情 -->
-                        <!-- <MenuItem Header="查看线程" Command="{Binding ViewThreadsCommand}" /> -->
-                        <!-- <MenuItem Header="查看句柄统计" Command="{Binding ViewHandlesCommand}" /> -->
-                        <!-- <MenuItem Header="查看句柄详情" Command="{Binding ViewHandleDetailsCommand}" /> -->
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="80" />
-                    <DataGridTextColumn Header="进程名" Binding="{Binding ImageName}" Width="*" />
-                    <DataGridTextColumn Header="内存" Binding="{Binding WorkingSetDisplay}" Width="120" />
-                    <DataGridTextColumn Header="线程" Binding="{Binding ThreadCount}" Width="80" />
-                    <DataGridTextColumn Header="父 PID" Binding="{Binding ParentProcessId}" Width="90" />
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid RowDefinitions="Auto,*">
+                <!-- column headers -->
+                <Border Padding="12,8" BorderThickness="0,0,0,1"
+                        BorderBrush="{DynamicResource SukiBorderBrush}">
+                    <Grid ColumnDefinitions="80,*,110,70,90">
+                        <TextBlock Text="PID" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+                        <TextBlock Grid.Column="1" Text="进程名" FontSize="12" FontWeight="SemiBold" Opacity="0.6" Margin="24,0,0,0" />
+                        <TextBlock Grid.Column="2" Text="内存" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+                        <TextBlock Grid.Column="3" Text="线程" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+                        <TextBlock Grid.Column="4" Text="父 PID" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+                    </Grid>
+                </Border>
+
+                <TreeView Grid.Row="1"
+                          x:Name="ProcessTreeView"
+                          ItemsSource="{Binding ProcessTree}"
+                          SelectedItem="{Binding SelectedTreeNode, Mode=TwoWay}"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          SelectionMode="Single"
+                          Padding="0">
+                    <TreeView.ContextMenu>
+                        <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                            <MenuItem Header="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
+                            <MenuItem Header="内核结束" Command="{Binding KillProcessCommand}" />
+                            <MenuItem Header="结束进程树" Command="{Binding KillProcessTreeCommand}" />
+                            <Separator />
+                            <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
+                            <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
+                            <Separator />
+                            <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
+                            <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
+                            <Separator />
+                            <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />
+                            <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
+                            <Separator />
+                            <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate ItemsSource="{Binding Children}"
+                                          x:DataType="models:ProcessTreeNode">
+                            <Grid ColumnDefinitions="80,*,110,70,90" Margin="0,1">
+                                <TextBlock Text="{Binding ProcessId}" FontSize="12"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{Binding ImageName}" FontSize="12"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="2" Text="{Binding WorkingSetDisplay}" FontSize="12"
+                                           VerticalAlignment="Center" Opacity="0.7" />
+                                <TextBlock Grid.Column="3" Text="{Binding ThreadCount}" FontSize="12"
+                                           VerticalAlignment="Center" Opacity="0.7" />
+                                <TextBlock Grid.Column="4" Text="{Binding ParentProcessId}" FontSize="12"
+                                           VerticalAlignment="Center" Opacity="0.7" />
+                            </Grid>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </Grid>
         </suki:GlassCard>
 
         <!-- detail panel: modules + threads -->
