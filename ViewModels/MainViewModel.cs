@@ -858,11 +858,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private static ProcessTreeNode? FilterNode(ProcessTreeNode node, string query)
     {
-        bool selfMatch = node.ImageName.Contains(query, StringComparison.OrdinalIgnoreCase)
+        bool selfMatch = (node.ImageName ?? "").Contains(query, StringComparison.OrdinalIgnoreCase)
                          || node.ProcessId.ToString().Contains(query);
 
         var filteredChildren = new ObservableCollection<ProcessTreeNode>();
-        foreach (var child in node.Children)
+        foreach (var child in node.Children ?? [])
         {
             var fc = FilterNode(child, query);
             if (fc != null) filteredChildren.Add(fc);
