@@ -2,19 +2,18 @@
     x:Class="OpenSysKit.UI.Views.Pages.AuditPage"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:suki="https://github.com/kikipoulet/SukiUI"
     xmlns:vm="using:OpenSysKit.UI.ViewModels"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,*" Margin="16">
-        <suki:GlassCard>
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <Border Classes="panel" Padding="16,14">
             <StackPanel Spacing="4">
-                <TextBlock Text="审计日志" FontSize="16" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding AuditSummary}" FontSize="13" Opacity="0.6" />
+                <TextBlock Text="审计日志" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AuditSummary}" FontSize="12" Classes="muted" />
             </StackPanel>
-        </suki:GlassCard>
+        </Border>
 
-        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+        <Border Grid.Row="1" Classes="panel" Padding="0" Margin="0,12,0,0">
             <DataGrid
                 ItemsSource="{Binding AuditEntries}"
                 AutoGenerateColumns="False"
@@ -31,6 +30,6 @@
                     <DataGridTextColumn Header="成功" Binding="{Binding Success}" Width="80" />
                 </DataGrid.Columns>
             </DataGrid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>

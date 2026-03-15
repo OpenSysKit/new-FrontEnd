@@ -46,7 +46,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private IBrush _notificationAccentBrush = new SolidColorBrush(Color.Parse("#5E7FA8"));
 
     public ObservableCollection<ProcessInfo> Processes { get; } = [];
-    public ObservableCollection<ProcessTreeNode> ProcessTree { get; } = [];
+    public ObservableCollection<ProcessListRow> ProcessRows { get; } = [];
     public ObservableCollection<NetworkConnection> Connections { get; } = [];
     public ObservableCollection<ServiceInfo> Services { get; } = [];
     public ObservableCollection<FileEntry> FileEntries { get; } = [];
@@ -59,8 +59,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<ThreadInfo> ProcessThreads { get; } = [];
     public ObservableCollection<HandleDetailInfo> HandleDetails { get; } = [];
 
-    private List<ProcessInfo> _allProcesses = [];
+    private List<ProcessListRow> _allProcesses = [];
     private List<ProcessTreeNode> _allProcessTreeRoots = [];
+    private readonly Dictionary<uint, bool> _processGroupExpansion = [];
     private int _totalProcessCount;
     private List<NetworkConnection> _allConnections = [];
     private List<ServiceInfo> _allServices = [];
@@ -68,7 +69,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private List<StartupEntry> _allStartupEntries = [];
 
     [ObservableProperty] private ProcessInfo? _selectedProcess;
-    [ObservableProperty] private ProcessTreeNode? _selectedTreeNode;
+    [ObservableProperty] private ProcessListRow? _selectedProcessRow;
     [ObservableProperty] private NetworkConnection? _selectedConnection;
     [ObservableProperty] private ServiceInfo? _selectedService;
     [ObservableProperty] private FileEntry? _selectedFile;
@@ -153,7 +154,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(CurrentSelectionDisplay));
     }
 
-    partial void OnSelectedTreeNodeChanged(ProcessTreeNode? value)
+    partial void OnSelectedProcessRowChanged(ProcessListRow? value)
     {
         if (_isRefreshing) return;
         SelectedProcess = value;
@@ -843,10 +844,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             switch (CurrentPage)
             {
                 case NavPage.Processes:
-                    var fp = string.IsNullOrEmpty(q)
-                        ? _allProcessTreeRoots
-                        : FilterProcessTree(_allProcessTreeRoots, q);
-                    ReplaceCollection(ProcessTree, fp);
+                    var fp = BuildVisibleProcessRows(_allProcessTreeRoots, q, _processGroupExpansion);
+                    ReplaceCollection(ProcessRows, fp);
                     OnPropertyChanged(nameof(ProcessesSummary));
                     break;
                 case NavPage.Network:
@@ -950,69 +949,205 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         _totalProcessCount = result["total"]?.GetValue<int>() ?? 0;
         _allProcessTreeRoots = result["roots"]?.Deserialize<List<ProcessTreeNode>>(JsonOptions) ?? [];
+        EnsureGroupExpansionDefaults(_allProcessTreeRoots, _processGroupExpansion);
 
         var q = SearchText?.Trim() ?? "";
-        var filtered = string.IsNullOrEmpty(q)
-            ? _allProcessTreeRoots
-            : FilterProcessTree(_allProcessTreeRoots, q);
+        _allProcesses = FlattenProcessRows(_allProcessTreeRoots, _processGroupExpansion);
+        var visibleRows = BuildVisibleProcessRows(_allProcessTreeRoots, q, _processGroupExpansion);
 
-        ReplaceCollection(ProcessTree, filtered);
+        ReplaceCollection(ProcessRows, visibleRows);
 
         if (selectedPid != null)
-            SelectedTreeNode = FindNodeByPid(ProcessTree, selectedPid.Value);
+            SelectedProcessRow = ProcessRows.FirstOrDefault(row => row.ProcessId == selectedPid.Value);
+        SelectedProcess ??= SelectedProcessRow;
 
         OnPropertyChanged(nameof(ProcessesSummary));
         StatusMessage = $"进程: {_totalProcessCount} 个";
     }
 
-    private static ProcessTreeNode? FindNodeByPid(IEnumerable<ProcessTreeNode> roots, uint pid)
+    private static void EnsureGroupExpansionDefaults(IEnumerable<ProcessTreeNode> roots, IDictionary<uint, bool> state)
     {
-        foreach (var node in roots)
-        {
-            if (node.ProcessId == pid) return node;
-            var found = FindNodeByPid(node.Children, pid);
-            if (found != null) return found;
-        }
-        return null;
-    }
-
-    private static List<ProcessTreeNode> FilterProcessTree(List<ProcessTreeNode> roots, string query)
-    {
-        var result = new List<ProcessTreeNode>();
         foreach (var root in roots)
         {
-            var filtered = FilterNode(root, query);
-            if (filtered != null)
-                result.Add(filtered);
+            if (!state.ContainsKey(root.ProcessId))
+            {
+                state[root.ProcessId] = true;
+            }
         }
-        return result;
     }
 
-    private static ProcessTreeNode? FilterNode(ProcessTreeNode node, string query)
+    private static bool GetExpansionState(IDictionary<uint, bool> state, uint rootPid)
     {
-        bool selfMatch = (node.ImageName ?? "").Contains(query, StringComparison.OrdinalIgnoreCase)
-                         || node.ProcessId.ToString().Contains(query);
+        return state.TryGetValue(rootPid, out var isExpanded) ? isExpanded : true;
+    }
 
-        var filteredChildren = new ObservableCollection<ProcessTreeNode>();
-        foreach (var child in node.Children ?? [])
+    private static List<ProcessListRow> FlattenProcessRows(IEnumerable<ProcessTreeNode> roots, IDictionary<uint, bool> state)
+    {
+        var rows = new List<ProcessListRow>();
+        foreach (var root in roots)
         {
-            var fc = FilterNode(child, query);
-            if (fc != null) filteredChildren.Add(fc);
+            AppendRows(rows, root, root, 0, state);
+        }
+        return rows;
+    }
+
+    private static List<ProcessListRow> BuildVisibleProcessRows(IEnumerable<ProcessTreeNode> roots, string query, IDictionary<uint, bool> state)
+    {
+        var normalizedQuery = query.Trim();
+        if (string.IsNullOrEmpty(normalizedQuery))
+        {
+            return FlattenProcessRows(roots, state);
         }
 
-        if (!selfMatch && filteredChildren.Count == 0)
-            return null;
+        var rows = new List<ProcessListRow>();
+        foreach (var root in roots)
+        {
+            var groupRows = new List<ProcessListRow>();
+            AppendFilteredRows(groupRows, root, root, 0, normalizedQuery, state);
+            if (groupRows.Count > 0)
+            {
+                rows.AddRange(groupRows);
+            }
+        }
+        return rows;
+    }
 
-        return new ProcessTreeNode
+    private static void AppendRows(List<ProcessListRow> rows, ProcessTreeNode node, ProcessTreeNode root, int depth, IDictionary<uint, bool> state)
+    {
+        rows.Add(CreateProcessRow(node, root, depth, state));
+
+        if (node.ProcessId != root.ProcessId)
+        {
+            return;
+        }
+
+        if (!GetExpansionState(state, root.ProcessId))
+        {
+            return;
+        }
+
+        foreach (var child in node.Children)
+        {
+            AppendRows(rows, child, root, depth + 1, state);
+        }
+    }
+
+    private static bool AppendFilteredRows(List<ProcessListRow> rows, ProcessTreeNode node, ProcessTreeNode root, int depth, string query, IDictionary<uint, bool> state)
+    {
+        var selfMatch = ProcessMatches(node, query);
+        var childRows = new List<ProcessListRow>();
+        var hasMatchingDescendant = false;
+
+        foreach (var child in node.Children)
+        {
+            if (AppendFilteredRows(childRows, child, root, depth + 1, query, state))
+            {
+                hasMatchingDescendant = true;
+            }
+        }
+
+        if (!selfMatch && !hasMatchingDescendant)
+        {
+            return false;
+        }
+
+        rows.Add(CreateProcessRow(node, root, depth, state));
+
+        if (node.ProcessId == root.ProcessId && !GetExpansionState(state, root.ProcessId))
+        {
+            return true;
+        }
+
+        rows.AddRange(childRows);
+        return true;
+    }
+
+    private static bool ProcessMatches(ProcessTreeNode node, string query)
+    {
+        return (node.ImageName ?? string.Empty).Contains(query, StringComparison.OrdinalIgnoreCase)
+               || node.ProcessId.ToString().Contains(query)
+               || node.ParentProcessId.ToString().Contains(query);
+    }
+
+    private static ProcessListRow CreateProcessRow(ProcessTreeNode node, ProcessTreeNode root, int depth, IDictionary<uint, bool> state)
+    {
+        return new ProcessListRow
         {
             ProcessId = node.ProcessId,
             ParentProcessId = node.ParentProcessId,
             ThreadCount = node.ThreadCount,
             WorkingSetSize = node.WorkingSetSize,
             ImageName = node.ImageName,
-            Children = filteredChildren,
-            IsExpanded = true
+            RootProcessId = root.ProcessId,
+            RootProcessName = root.ImageName,
+            ParentImageName = depth == 0 ? string.Empty : FindParentName(root, node.ParentProcessId),
+            Depth = depth,
+            IsRootProcess = depth == 0,
+            HasChildren = node.Children.Count > 0,
+            ChildCount = CountDescendants(node),
+            IsGroupExpanded = GetExpansionState(state, root.ProcessId)
         };
+    }
+
+    private static int CountDescendants(ProcessTreeNode node)
+    {
+        var total = 0;
+        foreach (var child in node.Children)
+        {
+            total += 1 + CountDescendants(child);
+        }
+        return total;
+    }
+
+    private static string FindParentName(ProcessTreeNode root, uint parentPid)
+    {
+        if (root.ProcessId == parentPid)
+        {
+            return root.ImageName;
+        }
+
+        foreach (var child in root.Children)
+        {
+            var match = FindParentNameRecursive(child, parentPid);
+            if (!string.IsNullOrEmpty(match))
+            {
+                return match;
+            }
+        }
+
+        return parentPid == 0 ? "系统" : $"PID {parentPid}";
+    }
+
+    private static string FindParentNameRecursive(ProcessTreeNode node, uint targetPid)
+    {
+        if (node.ProcessId == targetPid)
+        {
+            return node.ImageName;
+        }
+
+        foreach (var child in node.Children)
+        {
+            var match = FindParentNameRecursive(child, targetPid);
+            if (!string.IsNullOrEmpty(match))
+            {
+                return match;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    [RelayCommand]
+    private void ToggleProcessGroup(uint rootPid)
+    {
+        if (rootPid == 0)
+        {
+            return;
+        }
+
+        var current = GetExpansionState(_processGroupExpansion, rootPid);
+        _processGroupExpansion[rootPid] = !current;
+        ApplySearchFilter();
     }
 
     private async Task LoadNetworkAsync()

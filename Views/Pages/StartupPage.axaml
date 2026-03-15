@@ -2,28 +2,28 @@
     x:Class="OpenSysKit.UI.Views.Pages.StartupPage"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:suki="https://github.com/kikipoulet/SukiUI"
     xmlns:vm="using:OpenSysKit.UI.ViewModels"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,*" Margin="16">
-        <suki:GlassCard>
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <Border Classes="panel" Padding="16,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="启动项" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding StartupSummary}" FontSize="13" Opacity="0.6" />
+                    <TextBlock Text="启动项" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding StartupSummary}" FontSize="12" Classes="muted" />
                 </StackPanel>
                 <TextBox
                     Grid.Column="1"
+                    Classes="chrome"
                     Text="{Binding SearchText, Mode=TwoWay}"
                     Watermark="搜索启动项..."
                     MinWidth="220"
                     FontSize="12"
                     VerticalAlignment="Center" />
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
-        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+        <Border Grid.Row="1" Classes="panel" Padding="0" Margin="0,12,0,0">
             <DataGrid
                 ItemsSource="{Binding StartupEntries}"
                 AutoGenerateColumns="False"
@@ -42,6 +42,6 @@
                     <DataGridTextColumn Header="命令" Binding="{Binding Command}" Width="200" />
                 </DataGrid.Columns>
             </DataGrid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>

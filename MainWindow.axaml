@@ -9,7 +9,7 @@
     Title="OpenSysKit"
     Width="1280"
     Height="800"
-    BackgroundStyle="Bubble">
+    BackgroundStyle="GradientSoft">
 
     <suki:SukiWindow.LogoContent>
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
@@ -35,11 +35,12 @@
     <Grid>
         <suki:SukiSideMenu x:Name="SideMenu" IsSearchEnabled="False">
             <suki:SukiSideMenu.FooterContent>
-                <StackPanel Margin="14,4,14,14" Spacing="6">
-                    <Border Height="1" Background="{DynamicResource AppBorderStrongBrush}" Opacity="0.55" Margin="0,0,0,2" />
-                    <TextBlock Text="{Binding AutoRefreshDisplay}" FontSize="11" Classes="muted" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding CurrentSelectionDisplay}" FontSize="10.5" Opacity="0.5" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                <Border Classes="panel subtle" Margin="12,4,12,14" Padding="12,10">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="{Binding AutoRefreshDisplay}" FontSize="11" Classes="muted" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding CurrentSelectionDisplay}" FontSize="10.5" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
             </suki:SukiSideMenu.FooterContent>
 
             <suki:SukiSideMenu.Items>
@@ -100,22 +101,18 @@
         </suki:SukiSideMenu>
 
         <Border
+            Classes="notificationCard"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Margin="0,58,20,0"
             Width="340"
             IsVisible="{Binding IsNotificationVisible}"
-            Background="#F0161B22"
-            BorderBrush="{DynamicResource AppBorderStrongBrush}"
-            BorderThickness="1"
-            CornerRadius="12"
-            Padding="14,12"
-            BoxShadow="0 8 24 0 #40000000">
+            Padding="14,12">
             <Grid RowDefinitions="Auto,Auto">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <Border Width="3" Height="20" Background="{Binding NotificationAccentBrush}" CornerRadius="2" VerticalAlignment="Center" />
                     <TextBlock Grid.Column="1" Text="{Binding NotificationTitle}" FontSize="13" FontWeight="SemiBold" Margin="10,0,8,0" VerticalAlignment="Center" />
-                    <Button Grid.Column="2" Classes="chrome" Command="{Binding DismissNotificationCommand}" Content="✕" FontSize="11" Padding="6,2" MinWidth="24" Height="24" />
+                    <Button Grid.Column="2" Classes="icon" Command="{Binding DismissNotificationCommand}" Content="✕" FontSize="11" />
                 </Grid>
                 <TextBlock Grid.Row="1" Text="{Binding NotificationMessage}" FontSize="12" TextWrapping="Wrap" Opacity="0.85" Margin="13,8,0,0" />
             </Grid>

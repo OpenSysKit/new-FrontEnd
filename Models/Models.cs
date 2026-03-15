@@ -38,6 +38,21 @@ public class ProcessTreeNode : ProcessInfo, INotifyPropertyChanged
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
 
+public class ProcessListRow : ProcessInfo
+{
+    public uint RootProcessId { get; set; }
+    public string RootProcessName { get; set; } = "";
+    public string ParentImageName { get; set; } = "";
+    public int Depth { get; set; }
+    public bool IsRootProcess { get; set; }
+    public bool HasChildren { get; set; }
+    public int ChildCount { get; set; }
+    public bool IsGroupExpanded { get; set; } = true;
+    public string RelationLabel => IsRootProcess
+        ? (HasChildren ? $"父进程 · {ChildCount} 个子进程" : "父进程")
+        : $"子进程 · 上级 {ParentImageName}";
+}
+
 public class NetworkConnection
 {
     [JsonPropertyName("protocol")] public string Protocol { get; set; } = "";

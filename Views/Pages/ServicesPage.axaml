@@ -2,28 +2,28 @@
     x:Class="OpenSysKit.UI.Views.Pages.ServicesPage"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:suki="https://github.com/kikipoulet/SukiUI"
     xmlns:vm="using:OpenSysKit.UI.ViewModels"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,*" Margin="16">
-        <suki:GlassCard>
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <Border Classes="panel" Padding="16,14">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="服务管理" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ServicesSummary}" FontSize="13" Opacity="0.6" />
+                    <TextBlock Text="服务管理" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ServicesSummary}" FontSize="12" Classes="muted" />
                 </StackPanel>
                 <TextBox
                     Grid.Column="1"
+                    Classes="chrome"
                     Text="{Binding SearchText, Mode=TwoWay}"
                     Watermark="搜索服务名或显示名..."
                     MinWidth="220"
                     FontSize="12"
                     VerticalAlignment="Center" />
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
-        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
+        <Border Grid.Row="1" Classes="panel" Padding="0" Margin="0,12,0,0">
             <DataGrid
                 ItemsSource="{Binding Services}"
                 SelectedItem="{Binding SelectedService, Mode=TwoWay}"
@@ -52,6 +52,6 @@
                     <DataGridTextColumn Header="启动类型" Binding="{Binding StartType}" Width="120" />
                 </DataGrid.Columns>
             </DataGrid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>

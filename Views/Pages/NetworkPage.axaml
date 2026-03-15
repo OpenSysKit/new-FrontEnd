@@ -2,29 +2,30 @@
     x:Class="OpenSysKit.UI.Views.Pages.NetworkPage"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:suki="https://github.com/kikipoulet/SukiUI"
     xmlns:vm="using:OpenSysKit.UI.ViewModels"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
-        <suki:GlassCard>
+    <Grid RowDefinitions="Auto,Auto,*" Margin="20">
+        <Border Classes="panel" Padding="16,14">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="网络连接" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ConnectionsSummary}" FontSize="13" Opacity="0.6" />
+                    <TextBlock Text="网络连接" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ConnectionsSummary}" FontSize="12" Classes="muted" />
                 </StackPanel>
                 <TextBox
                     Grid.Column="1"
+                    Classes="chrome"
                     Text="{Binding SearchText, Mode=TwoWay}"
                     Watermark="搜索地址、端口或进程..."
-                    MinWidth="200"
+                    MinWidth="220"
                     FontSize="12"
                     VerticalAlignment="Center"
                     Margin="0,0,10,0" />
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                    <TextBlock Text="协议" VerticalAlignment="Center" FontSize="12" Opacity="0.6" Margin="0,0,2,0" />
+                    <TextBlock Text="协议" VerticalAlignment="Center" FontSize="12" Classes="muted" Margin="0,0,2,0" />
                     <ComboBox
                         x:Name="ProtocolCombo"
+                        Classes="chrome"
                         SelectedIndex="0"
                         FontSize="12"
                         MinWidth="90"
@@ -36,23 +37,24 @@
                     </ComboBox>
                 </StackPanel>
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
-        <suki:GlassCard Grid.Row="1" Margin="0,12,0,0">
+        <Border Grid.Row="1" Classes="panel subtle" Padding="12" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock Text="端口处置" FontSize="13" FontWeight="SemiBold" Opacity="0.7" VerticalAlignment="Center" />
+                <TextBlock Text="端口处置" FontSize="13" FontWeight="SemiBold" Classes="muted" VerticalAlignment="Center" />
                 <TextBox
+                    Classes="chrome"
                     Text="{Binding ResolvePortText, Mode=TwoWay}"
                     Watermark="端口号"
                     MinWidth="100"
                     FontSize="12"
                     Padding="8,5" />
-                <Button Content="结束占用进程" Command="{Binding ResolvePortKillCommand}" FontSize="12" Padding="12,5" />
-                <Button Content="断开 TCP 连接" Command="{Binding ResolvePortDisconnectCommand}" FontSize="12" Padding="12,5" />
+                <Button Classes="chrome" Content="结束占用进程" Command="{Binding ResolvePortKillCommand}" FontSize="12" Padding="12,5" />
+                <Button Classes="chrome" Content="断开 TCP 连接" Command="{Binding ResolvePortDisconnectCommand}" FontSize="12" Padding="12,5" />
             </StackPanel>
-        </suki:GlassCard>
+        </Border>
 
-        <suki:GlassCard Grid.Row="2" Padding="0" Margin="0,12,0,0">
+        <Border Grid.Row="2" Classes="panel" Padding="0" Margin="0,12,0,0">
             <DataGrid
                 ItemsSource="{Binding Connections}"
                 SelectedItem="{Binding SelectedConnection, Mode=TwoWay}"
@@ -73,6 +75,6 @@
                     <DataGridTextColumn Header="进程名" Binding="{Binding ProcessName}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>
