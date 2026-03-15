@@ -6,85 +6,145 @@
     xmlns:vm="using:OpenSysKit.UI.ViewModels"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
-        <!-- header -->
-        <suki:GlassCard>
-            <StackPanel Spacing="4">
-                <TextBlock Text="文件浏览" FontSize="16" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding FilesSummary}" FontSize="13" Opacity="0.6" />
-            </StackPanel>
-        </suki:GlassCard>
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+            <Border Classes="panel raised" Padding="18,16">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="OPENSYSKIT FILES" FontSize="11" FontWeight="Bold" Classes="muted" />
+                    <TextBlock Text="文件管理器" FontSize="22" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FilesSummary}" FontSize="12.5" Classes="muted" />
+                    <TextBlock Text="偏运维控制台风格，保留快速定位与进程处理能力。" FontSize="11.5" Classes="muted" />
+                </StackPanel>
+            </Border>
 
-        <!-- address bar -->
-        <suki:GlassCard Grid.Row="1" Padding="12" Margin="0,12,0,0">
-            <Grid ColumnDefinitions="Auto,*">
+            <Border Grid.Column="1" Classes="panel" Padding="16,14" MinWidth="220" Margin="14,0,0,0">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="当前位置" FontSize="11" Classes="muted" />
+                    <TextBlock Text="{Binding CurrentPath}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="支持手动输入、双击进入和占用进程处理。" FontSize="11" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Classes="panel" Padding="14" Margin="0,0,0,14">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                 <Button
-                    Classes="Basic"
+                    Classes="chrome"
                     Command="{Binding NavigateUpCommand}"
-                    Content="↑"
-                    FontSize="14"
-                    Padding="10,5"
-                    ToolTip.Tip="返回上级目录"
-                    Margin="0,0,8,0" />
+                    Content="上一级"
+                    FontSize="12.5"
+                    ToolTip.Tip="返回上级目录" />
                 <TextBox
                     Grid.Column="1"
+                    Classes="chrome"
                     Text="{Binding CurrentPath, Mode=TwoWay}"
                     Watermark="输入路径后按 Enter"
                     KeyDown="PathBox_OnKeyDown"
-                    FontSize="13"
-                    CornerRadius="6" />
+                    FontSize="13" />
+                <Button
+                    Grid.Column="2"
+                    Margin="10,0,0,0"
+                    Classes="chrome"
+                    Command="{Binding NavigateToCommand}"
+                    CommandParameter="{Binding CurrentPath}"
+                    Content="转到"
+                    FontSize="12.5" />
+                <Border Grid.Column="3" Classes="badge" Padding="12,7" Margin="10,0,0,0">
+                    <TextBlock Text="实时同步目录状态" FontSize="11.5" />
+                </Border>
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
-        <!-- file list -->
-        <suki:GlassCard Grid.Row="2" Padding="0" Margin="0,12,0,0">
-            <DataGrid
-                x:Name="FilesGrid"
-                ItemsSource="{Binding FileEntries}"
-                SelectedItem="{Binding SelectedFile, Mode=TwoWay}"
-                AutoGenerateColumns="False"
-                IsReadOnly="True"
-                GridLinesVisibility="Horizontal"
-                CanUserResizeColumns="True"
-                CanUserSortColumns="True"
-                SelectionMode="Single"
-                Background="Transparent"
-                BorderThickness="0"
-                DoubleTapped="FilesGrid_OnDoubleTapped">
-                <DataGrid.ContextMenu>
-                    <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
-                        <MenuItem Header="打开" Click="OpenMenuItem_OnClick" />
-                        <MenuItem Header="复制路径" Click="CopyPathMenuItem_OnClick" />
-                        <Separator />
-                        <MenuItem Header="结束占用进程" Command="{Binding KillLockingProcessesCommand}" />
-                        <MenuItem Header="内核删除" Command="{Binding DeleteFileCommand}" />
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="类别" Binding="{Binding KindLabel}" Width="80" />
-                    <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" />
-                    <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="110" />
-                    <DataGridTextColumn Header="修改时间" Binding="{Binding ModTime}" Width="180" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </suki:GlassCard>
+        <Grid Grid.Row="2" ColumnDefinitions="*,300" Margin="0,0,0,14">
+            <Border Classes="panel" Padding="0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Background="#0F1822" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="16,16,0,0" Padding="16,14">
+                        <Grid ColumnDefinitions="100,*,120,170">
+                            <TextBlock Text="类型" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="1" Text="名称" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="2" Text="大小" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="3" Text="修改时间" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                        </Grid>
+                    </Border>
+                    <DataGrid
+                        Grid.Row="1"
+                        x:Name="FilesGrid"
+                        ItemsSource="{Binding FileEntries}"
+                        SelectedItem="{Binding SelectedFile, Mode=TwoWay}"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        GridLinesVisibility="Horizontal"
+                        CanUserResizeColumns="True"
+                        CanUserSortColumns="True"
+                        SelectionMode="Single"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        DoubleTapped="FilesGrid_OnDoubleTapped">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                                <MenuItem Header="打开" Click="OpenMenuItem_OnClick" />
+                                <MenuItem Header="复制路径" Click="CopyPathMenuItem_OnClick" />
+                                <Separator />
+                                <MenuItem Header="结束占用进程" Command="{Binding KillLockingProcessesCommand}" />
+                                <MenuItem Header="内核删除" Command="{Binding DeleteFileCommand}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="类别" Binding="{Binding KindLabel}" Width="100" />
+                            <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="120" />
+                            <DataGridTextColumn Header="修改时间" Binding="{Binding ModTime}" Width="170" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
 
-        <!-- selected file info -->
-        <suki:GlassCard Grid.Row="3" Margin="0,12,0,0" IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Grid ColumnDefinitions="*,*,*">
-                <StackPanel Spacing="2">
-                    <TextBlock Text="选中项" FontSize="11" Opacity="0.5" />
-                    <TextBlock Text="{Binding SelectedFileDisplay}" FontSize="13" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+            <StackPanel Grid.Column="1" Spacing="14" Margin="14,0,0,0">
+                <Border Classes="panel raised" Padding="16" IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="选中详情" FontSize="11" FontWeight="Bold" Classes="muted" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="名称" FontSize="11" Classes="muted" />
+                            <TextBlock Text="{Binding SelectedFileDisplay}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,*">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="类型" FontSize="11" Classes="muted" />
+                                <TextBlock Text="{Binding SelectedFileKind}" FontSize="12.5" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4" Margin="12,0,0,0">
+                                <TextBlock Text="状态" FontSize="11" Classes="muted" />
+                                <TextBlock Text="已纳入当前视图" FontSize="12.5" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="完整路径" FontSize="11" Classes="muted" />
+                            <TextBlock Text="{Binding SelectedFilePath}" FontSize="12" Opacity="0.82" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="panel" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="快捷操作区" FontSize="11" FontWeight="Bold" Classes="muted" />
+                        <Button Classes="chrome" Content="打开选中项" Command="{Binding OpenSelectedFileCommand}" />
+                        <Button Classes="chrome" Content="返回上一级" Command="{Binding NavigateUpCommand}" />
+                        <Button Classes="chrome" Content="处理占用进程" Command="{Binding KillLockingProcessesCommand}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="3" Classes="panel" Padding="14,12">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="状态" FontSize="11" Classes="muted" />
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Spacing="2" Margin="16,0,0,0">
-                    <TextBlock Text="类型" FontSize="11" Opacity="0.5" />
-                    <TextBlock Text="{Binding SelectedFileKind}" FontSize="13" FontWeight="Medium" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Spacing="2" Margin="16,0,0,0">
-                    <TextBlock Text="路径" FontSize="11" Opacity="0.5" />
-                    <TextBlock Text="{Binding SelectedFilePath}" FontSize="12" Opacity="0.7" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                <Border Grid.Column="1" Classes="badge" Padding="12,7" Margin="12,0,0,0">
+                    <TextBlock Text="OpenSysKit 文件工作台" FontSize="11.5" />
+                </Border>
             </Grid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>

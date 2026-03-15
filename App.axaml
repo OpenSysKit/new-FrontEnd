@@ -20,12 +20,59 @@
     </TrayIcon.Icons>
     <Application.Resources>
         <SolidColorBrush x:Key="SystemControlTransparentBrush" Color="Transparent" />
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0B1118" />
+        <SolidColorBrush x:Key="AppSurfaceBrush" Color="#111923" />
+        <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#16212D" />
+        <SolidColorBrush x:Key="AppSurfaceSoftBrush" Color="#0F1721" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="#233243" />
+        <SolidColorBrush x:Key="AppTextMutedBrush" Color="#8FA0B4" />
+        <SolidColorBrush x:Key="AppAccentBrush" Color="#5E7FA8" />
+        <SolidColorBrush x:Key="AppAccentSoftBrush" Color="#1D2D41" />
+        <SolidColorBrush x:Key="NotificationInfoBrush" Color="#5E7FA8" />
+        <SolidColorBrush x:Key="NotificationSuccessBrush" Color="#5F8F7B" />
+        <SolidColorBrush x:Key="NotificationWarningBrush" Color="#B18A54" />
+        <SolidColorBrush x:Key="NotificationErrorBrush" Color="#A56363" />
     </Application.Resources>
     <Application.Styles>
         <suki:SukiTheme ThemeColor="Blue" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
-
-        <!-- ContextMenu: fast fade-in instead of default sluggish animation -->
+        <Style Selector="Application">
+            <Setter Property="TextElement.Foreground" Value="#E8EEF5" />
+        </Style>
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+        </Style>
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="{DynamicResource AppTextMutedBrush}" />
+        </Style>
+        <Style Selector="Border.panel">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="16" />
+        </Style>
+        <Style Selector="Border.panel.raised">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceRaisedBrush}" />
+        </Style>
+        <Style Selector="Border.badge">
+            <Setter Property="Background" Value="{DynamicResource AppAccentSoftBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="999" />
+        </Style>
+        <Style Selector="Button.chrome">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="12,7" />
+        </Style>
+        <Style Selector="TextBox.chrome">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceSoftBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
         <Style Selector="ContextMenu">
             <Setter Property="Transitions">
                 <Transitions>
@@ -33,8 +80,6 @@
                 </Transitions>
             </Setter>
         </Style>
-
-        <!-- MenuFlyoutPresenter (used by some SukiUI context menus) -->
         <Style Selector="MenuFlyoutPresenter">
             <Setter Property="Transitions">
                 <Transitions>
@@ -42,8 +87,6 @@
                 </Transitions>
             </Setter>
         </Style>
-
-        <!-- Popup: snappy open/close -->
         <Style Selector="Popup > Border">
             <Setter Property="Transitions">
                 <Transitions>
@@ -51,33 +94,52 @@
                 </Transitions>
             </Setter>
         </Style>
-
-        <!-- DataGrid row: lighter transitions for selection highlight -->
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="RowBackground" Value="Transparent" />
+                        <Setter Property="HorizontalGridLinesBrush" Value="#1D2B39" />
+            <Setter Property="VerticalGridLinesBrush" Value="#16202B" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+        </Style>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="#101A25" />
+            <Setter Property="Foreground" Value="#9BAABD" />
+            <Setter Property="BorderBrush" Value="#1F2D3D" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="12,10" />
+        </Style>
         <Style Selector="DataGridRow">
+            <Setter Property="MinHeight" Value="36" />
             <Setter Property="Transitions">
                 <Transitions>
                     <BrushTransition Property="Background" Duration="0:0:0.08" />
                 </Transitions>
             </Setter>
         </Style>
-
-        <!-- GlassCard: reduce transition overhead -->
+        <Style Selector="DataGridCell">
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
         <Style Selector="suki|GlassCard">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="18" />
             <Setter Property="Transitions">
                 <Transitions>
                     <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
                 </Transitions>
             </Setter>
         </Style>
-
-        <!-- TreeView: compact rows for process tree -->
+        <Style Selector="TreeView">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
         <Style Selector="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="MinHeight" Value="26" />
+            <Setter Property="MinHeight" Value="30" />
         </Style>
-
-        <!-- TreeViewItem row: selection highlight transition -->
         <Style Selector="TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
             <Setter Property="Margin" Value="0" />
         </Style>

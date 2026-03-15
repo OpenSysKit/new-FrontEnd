@@ -7,96 +7,119 @@
     xmlns:models="using:OpenSysKit.UI.Models"
     x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16">
-        <!-- header -->
-        <suki:GlassCard>
-            <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="进程" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ProcessesSummary}" FontSize="13" Opacity="0.6" />
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="20">
+        <Grid ColumnDefinitions="*,320" Margin="0,0,0,14">
+            <Border Classes="panel raised" Padding="18,16">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="OPENSYSKIT PROCESS" FontSize="11" FontWeight="Bold" Classes="muted" />
+                    <TextBlock Text="任务管理器" FontSize="22" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ProcessesSummary}" FontSize="12.5" Classes="muted" />
+                    <TextBlock Text="面向排障与内核操作的统一进程视图。" FontSize="11.5" Classes="muted" />
                 </StackPanel>
-                <TextBox
-                    Grid.Column="1"
-                    Text="{Binding SearchText, Mode=TwoWay}"
-                    Watermark="搜索进程名或 PID..."
-                    MinWidth="220"
-                    FontSize="12"
-                    VerticalAlignment="Center" />
-            </Grid>
-        </suki:GlassCard>
+            </Border>
 
-        <!-- main process tree -->
-        <suki:GlassCard Grid.Row="1" Padding="0" Margin="0,12,0,0">
-            <Grid RowDefinitions="Auto,*">
-                <!-- column headers -->
-                <Border Padding="12,8" BorderThickness="0,0,0,1"
-                        BorderBrush="{DynamicResource SukiBorderBrush}">
-                    <Grid ColumnDefinitions="80,*,110,70,90">
-                        <TextBlock Text="PID" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-                        <TextBlock Grid.Column="1" Text="进程名" FontSize="12" FontWeight="SemiBold" Opacity="0.6" Margin="24,0,0,0" />
-                        <TextBlock Grid.Column="2" Text="内存" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-                        <TextBlock Grid.Column="3" Text="线程" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-                        <TextBlock Grid.Column="4" Text="父 PID" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-                    </Grid>
+            <Border Grid.Column="1" Classes="panel" Padding="16,14" Margin="14,0,0,0">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="筛选条件" FontSize="11" Classes="muted" />
+                    <TextBox
+                        Classes="chrome"
+                        Text="{Binding SearchText, Mode=TwoWay}"
+                        Watermark="搜索进程名或 PID..."
+                        FontSize="12.5" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,320" Margin="0,0,0,14">
+            <Border Classes="panel" Padding="0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Background="#0F1822" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1" CornerRadius="16,16,0,0" Padding="16,14">
+                        <Grid ColumnDefinitions="80,*,110,80,90">
+                            <TextBlock Text="PID" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="1" Text="进程名" FontSize="11.5" FontWeight="SemiBold" Classes="muted" Margin="24,0,0,0" />
+                            <TextBlock Grid.Column="2" Text="内存" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="3" Text="线程" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                            <TextBlock Grid.Column="4" Text="父 PID" FontSize="11.5" FontWeight="SemiBold" Classes="muted" />
+                        </Grid>
+                    </Border>
+
+                    <TreeView Grid.Row="1"
+                              x:Name="ProcessTreeView"
+                              ItemsSource="{Binding ProcessTree}"
+                              SelectedItem="{Binding SelectedTreeNode, Mode=TwoWay}"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              SelectionMode="Single"
+                              Padding="10,8,10,10">
+                        <TreeView.ContextMenu>
+                            <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
+                                <MenuItem Header="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
+                                <MenuItem Header="内核结束" Command="{Binding KillProcessCommand}" />
+                                <MenuItem Header="结束进程树" Command="{Binding KillProcessTreeCommand}" />
+                                <Separator />
+                                <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
+                                <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
+                                <Separator />
+                                <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
+                                <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
+                                <Separator />
+                                <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />
+                                <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
+                                <Separator />
+                                <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}"
+                                              x:DataType="models:ProcessTreeNode">
+                                <Grid ColumnDefinitions="80,*,110,80,90" Margin="0,2">
+                                    <TextBlock Text="{Binding ProcessId}" FontSize="12.5" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding ImageName}" FontSize="12.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding WorkingSetDisplay}" FontSize="12" VerticalAlignment="Center" Opacity="0.76" />
+                                    <TextBlock Grid.Column="3" Text="{Binding ThreadCount}" FontSize="12" VerticalAlignment="Center" Opacity="0.76" />
+                                    <TextBlock Grid.Column="4" Text="{Binding ParentProcessId}" FontSize="12" VerticalAlignment="Center" Opacity="0.76" />
+                                </Grid>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Column="1" Spacing="14" Margin="14,0,0,0">
+                <Border Classes="panel raised" Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="焦点进程" FontSize="11" FontWeight="Bold" Classes="muted" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="当前焦点" FontSize="11" Classes="muted" />
+                            <TextBlock Text="{Binding SelectedProcessDisplay}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Classes="badge" Padding="10,6">
+                            <TextBlock Text="实时追踪已开启" FontSize="11.5" />
+                        </Border>
+                    </StackPanel>
                 </Border>
 
-                <TreeView Grid.Row="1"
-                          x:Name="ProcessTreeView"
-                          ItemsSource="{Binding ProcessTree}"
-                          SelectedItem="{Binding SelectedTreeNode, Mode=TwoWay}"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          SelectionMode="Single"
-                          Padding="0">
-                    <TreeView.ContextMenu>
-                        <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
-                            <MenuItem Header="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
-                            <MenuItem Header="内核结束" Command="{Binding KillProcessCommand}" />
-                            <MenuItem Header="结束进程树" Command="{Binding KillProcessTreeCommand}" />
-                            <Separator />
-                            <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
-                            <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
-                            <Separator />
-                            <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
-                            <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
-                            <Separator />
-                            <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />
-                            <MenuItem Header="取消隐藏" Command="{Binding UnhideProcessCommand}" />
-                            <Separator />
-                            <MenuItem Header="查看模块" Command="{Binding ViewModulesCommand}" />
-                        </ContextMenu>
-                    </TreeView.ContextMenu>
-                    <TreeView.ItemTemplate>
-                        <TreeDataTemplate ItemsSource="{Binding Children}"
-                                          x:DataType="models:ProcessTreeNode">
-                            <Grid ColumnDefinitions="80,*,110,70,90" Margin="0,1">
-                                <TextBlock Text="{Binding ProcessId}" FontSize="12"
-                                           VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Text="{Binding ImageName}" FontSize="12"
-                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Grid.Column="2" Text="{Binding WorkingSetDisplay}" FontSize="12"
-                                           VerticalAlignment="Center" Opacity="0.7" />
-                                <TextBlock Grid.Column="3" Text="{Binding ThreadCount}" FontSize="12"
-                                           VerticalAlignment="Center" Opacity="0.7" />
-                                <TextBlock Grid.Column="4" Text="{Binding ParentProcessId}" FontSize="12"
-                                           VerticalAlignment="Center" Opacity="0.7" />
-                            </Grid>
-                        </TreeDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </Grid>
-        </suki:GlassCard>
+                <Border Classes="panel" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="常用处置" FontSize="11" FontWeight="Bold" Classes="muted" />
+                        <Button Classes="chrome" Content="普通结束任务" Command="{Binding TaskKillProcessCommand}" />
+                        <Button Classes="chrome" Content="内核结束" Command="{Binding KillProcessCommand}" />
+                        <Button Classes="chrome" Content="结束进程树" Command="{Binding KillProcessTreeCommand}" />
+                        <Button Classes="chrome" Content="查看模块" Command="{Binding ViewModulesCommand}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
 
-        <!-- detail panel: modules + threads -->
-        <suki:GlassCard
+        <Border
             Grid.Row="2"
+            Classes="panel"
             Padding="0"
-            Margin="0,12,0,0"
             IsVisible="{Binding ShowDetailPanel}">
             <Grid ColumnDefinitions="1.1*,0.9*">
                 <Grid RowDefinitions="Auto,*">
-                    <Border Padding="16,10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
-                        <TextBlock Text="模块" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                    <Border Padding="16,12" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}">
+                        <TextBlock Text="模块" FontSize="13" FontWeight="SemiBold" Classes="muted" />
                     </Border>
                     <DataGrid
                         Grid.Row="1"
@@ -105,8 +128,6 @@
                         IsReadOnly="True"
                         GridLinesVisibility="Horizontal"
                         CanUserResizeColumns="True"
-                        Background="Transparent"
-                        BorderThickness="0"
                         MaxHeight="220">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="模块名" Binding="{Binding ModuleName}" Width="*" />
@@ -117,8 +138,8 @@
                 </Grid>
 
                 <Grid Grid.Column="1" RowDefinitions="Auto,*">
-                    <Border Padding="16,10" BorderThickness="1,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
-                        <TextBlock Text="线程" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
+                    <Border Padding="16,12" BorderThickness="1,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}">
+                        <TextBlock Text="线程" FontSize="13" FontWeight="SemiBold" Classes="muted" />
                     </Border>
                     <DataGrid
                         Grid.Row="1"
@@ -127,8 +148,6 @@
                         IsReadOnly="True"
                         GridLinesVisibility="Horizontal"
                         CanUserResizeColumns="True"
-                        Background="Transparent"
-                        BorderThickness="0"
                         MaxHeight="220">
                         <DataGrid.ContextMenu>
                             <ContextMenu Placement="Pointer" WindowManagerAddShadowHint="False">
@@ -144,20 +163,18 @@
                     </DataGrid>
                 </Grid>
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
-        <!-- handles panel -->
-        <suki:GlassCard
+        <Border
             Grid.Row="3"
+            Classes="panel"
             Padding="0"
-            Margin="0,12,0,0"
             IsVisible="{Binding ShowHandlesPanel}">
             <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-                <!-- type summary -->
-                <Border Padding="16,10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SukiBorderBrush}">
+                <Border Padding="16,12" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="句柄类型统计" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
-                        <TextBlock Text="{Binding HandlesSummary}" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
+                        <TextBlock Text="句柄类型统计" FontSize="13" FontWeight="SemiBold" Classes="muted" />
+                        <TextBlock Text="{Binding HandlesSummary}" FontSize="12" Classes="muted" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
                 <DataGrid
@@ -168,8 +185,6 @@
                     GridLinesVisibility="Horizontal"
                     CanUserResizeColumns="True"
                     CanUserSortColumns="True"
-                    Background="Transparent"
-                    BorderThickness="0"
                     MaxHeight="180">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="类型索引" Binding="{Binding TypeIndex}" Width="120" />
@@ -178,12 +193,10 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <!-- handle details -->
-                <Border Grid.Row="2" Padding="16,10" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource SukiBorderBrush}"
-                        IsVisible="{Binding ShowHandleDetails}">
+                <Border Grid.Row="2" Padding="16,12" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource AppBorderBrush}" IsVisible="{Binding ShowHandleDetails}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="句柄详情" FontSize="13" FontWeight="SemiBold" Opacity="0.7" />
-                        <TextBlock Text="{Binding HandleDetailsSummary}" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
+                        <TextBlock Text="句柄详情" FontSize="13" FontWeight="SemiBold" Classes="muted" />
+                        <TextBlock Text="{Binding HandleDetailsSummary}" FontSize="12" Classes="muted" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
                 <DataGrid
@@ -196,8 +209,6 @@
                     CanUserResizeColumns="True"
                     CanUserSortColumns="True"
                     SelectionMode="Single"
-                    Background="Transparent"
-                    BorderThickness="0"
                     MaxHeight="300"
                     IsVisible="{Binding ShowHandleDetails}">
                     <DataGrid.ContextMenu>
@@ -214,6 +225,6 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
-        </suki:GlassCard>
+        </Border>
     </Grid>
 </UserControl>

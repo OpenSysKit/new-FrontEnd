@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,6 +22,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private CancellationTokenSource? _refreshCts;
     private bool _isConnecting;
     private bool _isRefreshing;
+    private int _notificationVersion;
 
     public MainViewModel()
     {
@@ -37,6 +39,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _showDetailPanel;
     [ObservableProperty] private bool _showHandlesPanel;
     [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private bool _isNotificationVisible;
+    [ObservableProperty] private string _notificationTitle = "OpenSysKit 通知";
+    [ObservableProperty] private string _notificationMessage = "";
+    [ObservableProperty] private string _notificationTimestamp = "";
+    [ObservableProperty] private IBrush _notificationAccentBrush = new SolidColorBrush(Color.Parse("#5E7FA8"));
 
     public ObservableCollection<ProcessInfo> Processes { get; } = [];
     public ObservableCollection<ProcessTreeNode> ProcessTree { get; } = [];
@@ -186,6 +193,102 @@ public partial class MainViewModel : ObservableObject, IDisposable
     partial void OnSearchTextChanged(string value)
     {
         ApplySearchFilter();
+    }
+
+    partial void OnStatusMessageChanged(string value)
+    {
+        if (!ShouldShowNotification(value))
+        {
+            return;
+        }
+
+        NotificationTitle = GetNotificationTitle(value);
+        NotificationMessage = value;
+        NotificationTimestamp = DateTime.Now.ToString("HH:mm:ss");
+        NotificationAccentBrush = new SolidColorBrush(GetNotificationColor(value));
+        IsNotificationVisible = true;
+
+        var version = Interlocked.Increment(ref _notificationVersion);
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(4));
+            if (version != _notificationVersion)
+            {
+                return;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (version == _notificationVersion)
+                {
+                    IsNotificationVisible = false;
+                }
+            });
+        });
+    }
+
+    [RelayCommand]
+    private void DismissNotification()
+    {
+        Interlocked.Increment(ref _notificationVersion);
+        IsNotificationVisible = false;
+    }
+
+    private static bool ShouldShowNotification(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        if (value.StartsWith("进程:") || value.StartsWith("网络:") || value.StartsWith("服务:")
+            || value.StartsWith("目录:") || value.StartsWith("内核模块:")
+            || value.StartsWith("启动项:") || value.StartsWith("审计日志:"))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static string GetNotificationTitle(string value)
+    {
+        if (value.Contains("失败") || value.Contains("错误") || value.Contains("断开"))
+        {
+            return "操作异常";
+        }
+
+        if (value.Contains("已") || value.Contains("完成") || value.Contains("成功"))
+        {
+            return "操作完成";
+        }
+
+        if (value.Contains("连接") || value.Contains("重连"))
+        {
+            return "连接状态";
+        }
+
+        return "OpenSysKit 通知";
+    }
+
+    private static Color GetNotificationColor(string value)
+    {
+        if (value.Contains("失败") || value.Contains("错误") || value.Contains("未成功") || value.Contains("断开"))
+        {
+            return Color.Parse("#A56363");
+        }
+
+        if (value.Contains("处理中") || value.Contains("正在") || value.Contains("重连"))
+        {
+            return Color.Parse("#B18A54");
+        }
+
+        if (value.Contains("已") || value.Contains("完成") || value.Contains("成功"))
+        {
+            return Color.Parse("#5F8F7B");
+        }
+
+        return Color.Parse("#5E7FA8");
     }
 
     // ── Connection ──────────────────────────────────────────────
@@ -1086,3 +1189,5 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 }
+
+
