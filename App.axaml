@@ -20,24 +20,27 @@
     </TrayIcon.Icons>
     <Application.Resources>
         <SolidColorBrush x:Key="SystemControlTransparentBrush" Color="Transparent" />
-        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0B1118" />
-        <SolidColorBrush x:Key="AppSurfaceBrush" Color="#111923" />
-        <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#16212D" />
-        <SolidColorBrush x:Key="AppSurfaceSoftBrush" Color="#0F1721" />
-        <SolidColorBrush x:Key="AppBorderBrush" Color="#233243" />
-        <SolidColorBrush x:Key="AppTextMutedBrush" Color="#8FA0B4" />
-        <SolidColorBrush x:Key="AppAccentBrush" Color="#5E7FA8" />
-        <SolidColorBrush x:Key="AppAccentSoftBrush" Color="#1D2D41" />
-        <SolidColorBrush x:Key="NotificationInfoBrush" Color="#5E7FA8" />
-        <SolidColorBrush x:Key="NotificationSuccessBrush" Color="#5F8F7B" />
-        <SolidColorBrush x:Key="NotificationWarningBrush" Color="#B18A54" />
-        <SolidColorBrush x:Key="NotificationErrorBrush" Color="#A56363" />
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0D1117" />
+        <SolidColorBrush x:Key="AppSurfaceBrush" Color="#161B22" />
+        <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#1C2128" />
+        <SolidColorBrush x:Key="AppSurfaceSoftBrush" Color="#0D1117" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="#30363D" />
+        <SolidColorBrush x:Key="AppBorderStrongBrush" Color="#484F58" />
+        <SolidColorBrush x:Key="AppTextMutedBrush" Color="#8B949E" />
+        <SolidColorBrush x:Key="AppAccentBrush" Color="#58A6FF" />
+        <SolidColorBrush x:Key="AppAccentSoftBrush" Color="#1F2937" />
+        <SolidColorBrush x:Key="AppHeaderBrush" Color="#161B22" />
+        <SolidColorBrush x:Key="NotificationInfoBrush" Color="#58A6FF" />
+        <SolidColorBrush x:Key="NotificationSuccessBrush" Color="#3FB950" />
+        <SolidColorBrush x:Key="NotificationWarningBrush" Color="#D29922" />
+        <SolidColorBrush x:Key="NotificationErrorBrush" Color="#F85149" />
     </Application.Resources>
     <Application.Styles>
         <suki:SukiTheme ThemeColor="Blue" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
         <Style Selector="Application">
-            <Setter Property="TextElement.Foreground" Value="#E8EEF5" />
+            <Setter Property="TextElement.Foreground" Value="#EDF3FB" />
         </Style>
         <Style Selector="Window">
             <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
@@ -49,48 +52,74 @@
             <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2" />
+                </Transitions>
+            </Setter>
         </Style>
         <Style Selector="Border.panel.raised">
             <Setter Property="Background" Value="{DynamicResource AppSurfaceRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderStrongBrush}" />
         </Style>
         <Style Selector="Border.badge">
             <Setter Property="Background" Value="{DynamicResource AppAccentSoftBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="999" />
         </Style>
         <Style Selector="Button.chrome">
-            <Setter Property="Background" Value="{DynamicResource AppSurfaceRaisedBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="Background" Value="#243244" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="12,7" />
         </Style>
         <Style Selector="TextBox.chrome">
             <Setter Property="Background" Value="{DynamicResource AppSurfaceSoftBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="CornerRadius" Value="12" />
         </Style>
         <Style Selector="ContextMenu">
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.1" Easing="CubicEaseOut" />
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut" />
                 </Transitions>
             </Setter>
         </Style>
         <Style Selector="MenuFlyoutPresenter">
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.1" Easing="CubicEaseOut" />
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut" />
                 </Transitions>
             </Setter>
         </Style>
         <Style Selector="Popup > Border">
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.08" Easing="CubicEaseOut" />
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Border.panel">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2" />
                 </Transitions>
             </Setter>
         </Style>
@@ -98,19 +127,19 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="RowBackground" Value="Transparent" />
-                        <Setter Property="HorizontalGridLinesBrush" Value="#1D2B39" />
-            <Setter Property="VerticalGridLinesBrush" Value="#16202B" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#263244" />
+            <Setter Property="VerticalGridLinesBrush" Value="#1E2836" />
             <Setter Property="HeadersVisibility" Value="Column" />
         </Style>
         <Style Selector="DataGridColumnHeader">
-            <Setter Property="Background" Value="#101A25" />
-            <Setter Property="Foreground" Value="#9BAABD" />
-            <Setter Property="BorderBrush" Value="#1F2D3D" />
+            <Setter Property="Background" Value="{DynamicResource AppHeaderBrush}" />
+            <Setter Property="Foreground" Value="#B0BED0" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderStrongBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Padding" Value="12,10" />
         </Style>
         <Style Selector="DataGridRow">
-            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="MinHeight" Value="38" />
             <Setter Property="Transitions">
                 <Transitions>
                     <BrushTransition Property="Background" Duration="0:0:0.08" />
@@ -118,7 +147,7 @@
             </Setter>
         </Style>
         <Style Selector="DataGridCell">
-            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Padding" Value="12,9" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="suki|GlassCard">
@@ -126,11 +155,6 @@
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="18" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
-                </Transitions>
-            </Setter>
         </Style>
         <Style Selector="TreeView">
             <Setter Property="Background" Value="Transparent" />
@@ -138,7 +162,7 @@
         <Style Selector="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="MinHeight" Value="32" />
         </Style>
         <Style Selector="TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
             <Setter Property="Margin" Value="0" />
