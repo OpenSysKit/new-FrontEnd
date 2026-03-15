@@ -54,7 +54,15 @@
                             <MenuItem Header="冻结" Command="{Binding FreezeProcessCommand}" />
                             <MenuItem Header="解冻" Command="{Binding UnfreezeProcessCommand}" />
                             <Separator />
-                            <MenuItem Header="保护进程" Command="{Binding ProtectProcessCommand}" />
+                            <MenuItem Header="进程保护 (PPL)">
+                                <MenuItem Header="无保护" Command="{Binding SetProtectLevelCommand}" CommandParameter="0" />
+                                <Separator />
+                                <MenuItem Header="Authenticode-Light" Command="{Binding SetProtectLevelCommand}" CommandParameter="17" />
+                                <MenuItem Header="Antimalware-Light (推荐)" Command="{Binding SetProtectLevelCommand}" CommandParameter="49" />
+                                <MenuItem Header="LSA-Light" Command="{Binding SetProtectLevelCommand}" CommandParameter="65" />
+                                <MenuItem Header="Windows-Light" Command="{Binding SetProtectLevelCommand}" CommandParameter="81" />
+                                <MenuItem Header="WinTcb-Light (最高)" Command="{Binding SetProtectLevelCommand}" CommandParameter="97" />
+                            </MenuItem>
                             <MenuItem Header="取消保护" Command="{Binding UnprotectProcessCommand}" />
                             <Separator />
                             <MenuItem Header="隐藏进程" Command="{Binding HideProcessCommand}" />

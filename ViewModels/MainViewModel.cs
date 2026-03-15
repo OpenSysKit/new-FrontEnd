@@ -485,10 +485,39 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (SelectedProcess == null) return;
         try
         {
-            await _rpc.CallAsync("Toolkit.ProtectProcess", new { process_id = SelectedProcess.ProcessId });
-            StatusMessage = $"已保护 PID {SelectedProcess.ProcessId}";
+            // 兼容旧入口：默认 Antimalware-Light
+            await _rpc.CallAsync("Toolkit.ProtectProcess", new { process_id = SelectedProcess.ProcessId, level = 0x31 });
+            StatusMessage = $"已保护 PID {SelectedProcess.ProcessId} (Antimalware-Light)";
         }
         catch (Exception ex) { StatusMessage = $"保护失败: {ex.Message}"; }
+    }
+
+    [RelayCommand]
+    private async Task SetProtectLevelAsync(string? levelText)
+    {
+        if (SelectedProcess == null) return;
+        if (!byte.TryParse(levelText, out var level))
+        {
+            StatusMessage = "保护等级参数无效";
+            return;
+        }
+
+        try
+        {
+            await _rpc.CallAsync("Toolkit.ProtectProcess", new { process_id = SelectedProcess.ProcessId, level });
+            var levelName = level switch
+            {
+                0x00 => "无保护",
+                0x11 => "Authenticode-Light",
+                0x31 => "Antimalware-Light",
+                0x41 => "LSA-Light",
+                0x51 => "Windows-Light",
+                0x61 => "WinTcb-Light",
+                _ => $"0x{level:X2}"
+            };
+            StatusMessage = $"已设置 PID {SelectedProcess.ProcessId} 保护等级: {levelName}";
+        }
+        catch (Exception ex) { StatusMessage = $"设置保护等级失败: {ex.Message}"; }
     }
 
     [RelayCommand]
